@@ -92,7 +92,7 @@ export default function RootLayout({
          suppressHydrationWarning
       >
         <SmoothScrolling>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <ThemeProvider attribute="class" enableSystem={false}>
             <CursorProvider>
               <Navbar />
               {children}
