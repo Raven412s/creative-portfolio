@@ -1,0 +1,216 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-inter: var(--font-inter);
+  --font-poppins: var(--font-poppins);
+  --font-playfair: var(--font-playfair);
+  --font-irish-grover: var(--font-irish-grover);
+  --font-italiana: var(--font-italiana);
+  --font-jacquard24: var(--font-jacquard24);
+  --font-kolker-brush: var(--font-kolker-brush);
+  --font-kings: var(--font-kings);
+  --font-gridular: var(--font-gridular);
+  --font-rmNeue: var(--font-rm-neue);
+  --font-rmMono: var(--font-rm-mono);
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .navText {
+    @apply uppercase font-rmMono text-white text-xs sm:text-sm md:text-sm lg:text-[0.9vw] xl:text-[0.95vw] 2xl:text-[1vw] py-2 sm:py-2 md:py-2.5 lg:py-[0.7vw] xl:py-[0.8vw] px-3 sm:px-4 md:px-5 lg:px-[1.6vw] xl:px-[1.7vw] 2xl:px-[1.8vw];
+  }
+
+  .menuOverlay {
+    @apply fixed top-0 left-0 w-screen h-screen flex items-center bg-[#242424] text-white px-5 sm:px-6 md:px-8 lg:px-[1.8vw] xl:px-[2vw] 2xl:px-[2.2vw] py-10 sm:py-12 md:py-14 lg:py-0
+  }
+
+  .menuOverlayInner {
+    @apply flex flex-col lg:flex-row gap-10 sm:gap-12 md:gap-14 lg:gap-[16vw] xl:gap-[17vw] 2xl:gap-[18vw]
+  }
+
+  .menuOverlayHeading {
+    @apply text-[#1cf3a1] font-rmNeue uppercase text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[5vw] xl:text-[4.5vw] 2xl:text-[4vw]
+  }
+
+  .menuIndex {
+    @apply font-gridular text-sm sm:text-base md:text-lg lg:text-[1.1vw] xl:text-[1.15vw] 2xl:text-[1.2vw]
+  }
+
+  .menuLink {
+    @apply font-gridular uppercase text-2xl sm:text-3xl md:text-4xl lg:text-[2vw] xl:text-[2.1vw] 2xl:text-[2.2vw]
+  }
+
+  .menuIconSize {
+    @apply w-5 h-5 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-[1.3vw] lg:h-[1.3vw] xl:w-[1.4vw] xl:h-[1.4vw] 2xl:w-[1.5vw] 2xl:h-[1.5vw]
+  }
+
+  .letter {
+  display: inline-block;
+  will-change: transform;
+}
+
+}
+
+
+/* Sabhi modern browsers ke liye */
+::selection {
+  background-color: #1cf3a157; /* Background color (Aapka green color) */
+  color: #000000;            /* Text color */
+}
+
+/* Firefox ke liye (Older versions) */
+::-moz-selection {
+  background-color: #1cf3a157;
+  color: #000000;
+}
+
+.info-pattern {
+  width: 100%;
+  height: 100%;
+  --s: 200px;
+  --c1: #1d1d1d;
+  --c2: #4e4f51;
+  --c3: #3c3c3c;
+
+  background: repeating-conic-gradient(
+        from 30deg,
+        transparent 0 120deg,
+        var(--c3) 0 180deg
+      )
+      calc(0.5 * var(--s)) calc(0.5 * var(--s) * 0.577),
+    repeating-conic-gradient(
+      from 30deg,
+      var(--c1) 0 60deg,
+      var(--c2) 0 120deg,
+      var(--c3) 0 180deg
+    );
+
+  background-size: var(--s) calc(var(--s) * 0.577);
+}
