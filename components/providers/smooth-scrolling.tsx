@@ -1,31 +1,38 @@
-"use client";
+"use client"
 
-import { ReactNode, useEffect } from "react";
-import Lenis from "lenis";
+import ReactLenis, { useLenis } from "lenis/react"
+import { useEffect } from "react"
 
-export default function SmoothScroll({ children }: { children: ReactNode }) {
+function LenisLogger() {
+  const lenis = useLenis(() => {})
+  
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      orientation: "vertical",
-      lerp: 0.1,
-      smoothWheel: true,
-      touchMultiplier: 2,
-    });
-
-    function raf(time: number) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
+    if (lenis) {
+      console.log("Lenis Options:", lenis.options)
+      console.log("Lenis Instance:", lenis)
     }
+  }, [lenis])
 
-    requestAnimationFrame(raf);
-
-    return () => {
-      lenis.destroy();
-    };
-  }, []);
-
-  return <>{children}</>;
+  return null
 }
 
+export default function SmoothScrolling({ children }: { children: React.ReactNode }) {
+  return (
+    <ReactLenis
+      root
+      options={{
+        lerp: 0.05,
+        syncTouchLerp: 0.05,
+        duration: 1.2,
+        wheelMultiplier: 1,
+        touchMultiplier: 1,
+        infinite: false,
+        autoResize: true,
+        syncTouch: true,
+      }}
+    >
+      <LenisLogger />  {/* ← yeh saare available options log karega */}
+      {children}
+    </ReactLenis>
+  )
+}
