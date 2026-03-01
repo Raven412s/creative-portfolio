@@ -14,7 +14,7 @@ const BookletSection = () => {
             <Loader />
             <Canvas
                 shadows
-                className="pointer-events-auto"  // yeh add karo
+                className="pointer-events-auto h-1/2"  // yeh add karo
                 style={{ touchAction: 'none' }}   // yeh bhi
             >
                 <ResponsiveCamera />
