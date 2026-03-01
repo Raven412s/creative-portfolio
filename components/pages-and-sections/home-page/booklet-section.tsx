@@ -12,8 +12,12 @@ const BookletSection = () => {
         <section id="bookflip-3D" className="h-screen w-full relative pointer-events-none bg-background">
             <UI />
             <Loader />
-            <Canvas shadows >
-                <ResponsiveCamera/>
+            <Canvas
+                shadows
+                className="pointer-events-auto"  // yeh add karo
+                style={{ touchAction: 'none' }}   // yeh bhi
+            >
+                <ResponsiveCamera />
                 <group position-y={0} >
                     <Suspense fallback={null}>
                         <Experience />

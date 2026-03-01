@@ -25,7 +25,7 @@ export default function SmoothScrolling({ children }: { children: React.ReactNod
         syncTouchLerp: 0.05,
         duration: 1.2,
         wheelMultiplier: 1,
-        touchMultiplier: 1,
+        touchMultiplier: 1.5,
         infinite: false,
         autoResize: true,
         syncTouch: true,
