@@ -62,29 +62,8 @@ export function useMobileOptimization() {
    * Enable scrolling on body
    */
   const enableScroll = () => {
-    document.body.style.overflow = "";
-    document.body.style.touchAction = "";
-  };
-
-  /**
-   * Detect if user is scrolling
-   */
-  const useScrollDetection = (callback: (isScrolling: boolean) => void) => {
-    useEffect(() => {
-      let scrollTimeout: NodeJS.Timeout;
-
-      const handleScroll = () => {
-        callback(true);
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => callback(false), 500);
-      };
-
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
-        clearTimeout(scrollTimeout);
-      };
-    }, [callback]);
+    document.body.style.overflow = "auto";
+    document.body.style.touchAction = "auto";
   };
 
   /**
@@ -135,7 +114,6 @@ export function useMobileOptimization() {
     isLandscape,
     disableScroll,
     enableScroll,
-    useScrollDetection,
     handleTouchableClick,
     preventDoubleTapZoom,
   };

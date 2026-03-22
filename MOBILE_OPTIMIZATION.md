@@ -40,7 +40,7 @@ Your portfolio website has been optimized for mobile devices with comprehensive 
 - **Improved Typography Scaling**:
   - Mobile (< 640px): Smaller, optimized text sizes
   - Tablet (640-1024px): Medium scaling
-  - Desktop (> 1024px): Full scale typography
+  - Desktop (> 1024px): Full-scale typography
 - **Better Line Heights**: Adjusted for mobile readability (1.1 to 0.85 line-height)
 - **Padding Optimization**: Responsive horizontal padding (2px to 4px on mobile)
 
@@ -74,35 +74,85 @@ Added comprehensive mobile and touch accessibility styles:
 #### Mobile Pointer Media Query
 ```css
 @media (pointer: coarse) {
-  /* Touch-specific optimizations */
-  - Removes hover effects
-  - Ensures 44x44px+ touch targets
-  - Adds touch-action: manipulation
-  - Improved focus visibility
+  /* Remove hover effects on touch devices */
+  button:hover, a:hover {
+    background-color: inherit;
+  }
+  
+  /* Ensure 44x44px+ touch targets */
+  button, a[role="button"], [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Add touch-action for better performance */
+  button, a, input {
+    touch-action: manipulation;
+  }
+  
+  /* Improved focus visibility */
+  button:focus-visible, a:focus-visible {
+    outline: 2px solid;
+    outline-offset: 2px;
+  }
 }
 ```
 
 #### Small Screen Optimization
 ```css
 @media (max-width: 640px) {
-  - Font size adjustments
-  - Better word breaking
-  - Proper spacing
-  - Prevents horizontal scroll
+  /* Font size adjustments */
+  html {
+    font-size: 14px;
+  }
+  
+  /* Better word breaking */
+  h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+  
+  /* Proper spacing */
+  .menuOverlay {
+    padding-top: 60px;
+  }
+  
+  /* Prevent horizontal scroll on body */
+  body {
+    overflow-x: hidden;
+  }
 }
 ```
 
 #### Accessibility Features
 ```css
-@media (prefers-reduced-motion: reduce)
-  - Respects user motion preferences
-  - Reduces animation durations
-  
-@media (prefers-contrast: more)
-  - Increases contrast for better visibility
-  
-@media (max-height: 500px) and (orientation: landscape)
-  - Handles small landscape displays
+/* Respects user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Increases contrast for better visibility */
+@media (prefers-contrast: more) {
+  .dark {
+    --border: oklch(1 0 0 / 20%);
+    --input: oklch(1 0 0 / 25%);
+  }
+}
+
+/* Handles small landscape displays */
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    overflow-y: auto;
+  }
+  section {
+    min-height: auto;
+  }
+}
 ```
 
 ### 8. **Mobile Optimization Hook** (`hooks/use-mobile-optimization.tsx`)

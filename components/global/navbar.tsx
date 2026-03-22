@@ -7,12 +7,83 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useIsTouchDevice } from '@/hooks/use-is-touch-device';
 import { Magnetic } from '../buttons';
 import RavenLogo from '../pages-and-sections/home-page/hero/raven-logo';
-import { useCursorElement } from '../test/claude-cursor';
+import { useCursorElement, type CursorElementHandlers } from '../test/claude-cursor';
 import StaggerText from '../ui/stagger-text';
+
 type MenuLink = {
     name: string;
     href: string;
 };
+
+/**
+ * MenuToggleContent - Animated menu/close toggle icon with transitions
+ * @param overlayVisible Whether the menu overlay is visible
+ * @param h Cursor element attributes returned from useCursorElement hook
+ * @returns Animated menu toggle component
+ */
+interface MenuToggleContentProps {
+    overlayVisible: boolean;
+    h: Partial<React.HTMLAttributes<HTMLDivElement>> & CursorElementHandlers;
+}
+
+const MenuToggleContent = ({ overlayVisible, h }: MenuToggleContentProps) => (
+    <div className="relative flex items-center justify-center pointer-events-auto" {...h}>
+        <AnimatePresence mode="wait">
+            {overlayVisible ? (
+                <motion.div
+                    key="close"
+                    initial={{
+                        rotate: -90,
+                        opacity: 0,
+                        scale: 0.5,
+                    }}
+                    animate={{
+                        rotate: 0,
+                        opacity: 1,
+                        scale: 1,
+                    }}
+                    exit={{
+                        rotate: 90,
+                        opacity: 0,
+                        scale: 0.5,
+                    }}
+                    transition={{
+                        duration: 0.25,
+                        ease: "easeInOut",
+                    }}
+                >
+                    <X className="menuIconSize" />
+                </motion.div>
+            ) : (
+                <motion.div
+                    key="menu"
+                    initial={{
+                        rotate: 90,
+                        opacity: 0,
+                        scale: 0.5,
+                    }}
+                    animate={{
+                        rotate: 0,
+                        opacity: 1,
+                        scale: 1,
+                    }}
+                    exit={{
+                        rotate: -90,
+                        opacity: 0,
+                        scale: 0.5,
+                    }}
+                    transition={{
+                        duration: 0.25,
+                        ease: "easeInOut",
+                    }}
+                >
+                    <Menu className="menuIconSize" />
+                </motion.div>
+            )}
+        </AnimatePresence>
+    </div>
+);
+
 const Navbar = () => {
     const menuRef = useRef<HTMLDivElement | null>(null);
     const squareContainerRef = useRef<HTMLDivElement | null>(null);
@@ -163,117 +234,11 @@ const Navbar = () => {
       "
             >
                 {isTouchDevice ? (
-                    <div className="relative flex items-center justify-center pointer-events-auto" {...h}>
-                        <AnimatePresence mode="wait">
-                            {overlayVisible ? (
-                                <motion.div
-                                    key="close"
-                                    initial={{
-                                        rotate: -90,
-                                        opacity: 0,
-                                        scale: 0.5,
-                                    }}
-                                    animate={{
-                                        rotate: 0,
-                                        opacity: 1,
-                                        scale: 1,
-                                    }}
-                                    exit={{
-                                        rotate: 90,
-                                        opacity: 0,
-                                        scale: 0.5,
-                                    }}
-                                    transition={{
-                                        duration: 0.25,
-                                        ease: "easeInOut",
-                                    }}
-                                >
-                                    <X className="menuIconSize" />
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key="menu"
-                                    initial={{
-                                        rotate: 90,
-                                        opacity: 0,
-                                        scale: 0.5,
-                                    }}
-                                    animate={{
-                                        rotate: 0,
-                                        opacity: 1,
-                                        scale: 1,
-                                    }}
-                                    exit={{
-                                        rotate: -90,
-                                        opacity: 0,
-                                        scale: 0.5,
-                                    }}
-                                    transition={{
-                                        duration: 0.25,
-                                        ease: "easeInOut",
-                                    }}
-                                >
-                                    <Menu className="menuIconSize" />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div>
+                    <MenuToggleContent overlayVisible={overlayVisible} h={h} />
                 ) : (
-                    <Magnetic><div className="relative flex items-center justify-center pointer-events-auto" {...h}>
-                        <AnimatePresence mode="wait">
-                            {overlayVisible ? (
-                                <motion.div
-                                    key="close"
-                                    initial={{
-                                        rotate: -90,
-                                        opacity: 0,
-                                        scale: 0.5,
-                                    }}
-                                    animate={{
-                                        rotate: 0,
-                                        opacity: 1,
-                                        scale: 1,
-                                    }}
-                                    exit={{
-                                        rotate: 90,
-                                        opacity: 0,
-                                        scale: 0.5,
-                                    }}
-                                    transition={{
-                                        duration: 0.25,
-                                        ease: "easeInOut",
-                                    }}
-                                >
-                                    <X className="menuIconSize" />
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key="menu"
-                                    initial={{
-                                        rotate: 90,
-                                        opacity: 0,
-                                        scale: 0.5,
-                                    }}
-                                    animate={{
-                                        rotate: 0,
-                                        opacity: 1,
-                                        scale: 1,
-                                    }}
-                                    exit={{
-                                        rotate: -90,
-                                        opacity: 0,
-                                        scale: 0.5,
-                                    }}
-                                    transition={{
-                                        duration: 0.25,
-                                        ease: "easeInOut",
-                                    }}
-                                >
-                                    <Menu className="menuIconSize" />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </div></Magnetic>
+                    <Magnetic>
+                        <MenuToggleContent overlayVisible={overlayVisible} h={h} />
+                    </Magnetic>
                 )}
             </motion.div>
             <nav className="fixed top-0 w-full flex justify-between mix-blend-difference z-1000 mt-2 lg:mt-[0.9vw] pointer-events-none">
