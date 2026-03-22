@@ -97,13 +97,14 @@
 ## 🎯 Accessibility Standards
 
 ### WCAG 2.1 Compliance:
-- [x] Level A: Conformant
-- [x] Level AA: Conformant (including touch targets)
-- [x] Touch target size: 44x44px minimum
-- [x] Color contrast: Adequate
-- [x] Focus indicators: Visible
-- [x] Semantic HTML: Used throughout
-- [x] ARIA labels: Properly implemented
+Targeting WCAG 2.1 AA (validation pending)
+- [ ] Level A: To be validated
+- [ ] Level AA: To be validated (including touch targets)
+- [ ] Touch target size: 44x44px minimum (to be validated)
+- [ ] Color contrast: To be validated
+- [ ] Focus indicators: To be validated
+- [ ] Semantic HTML: Implemented (to be validated)
+- [ ] ARIA labels: Implemented (to be validated)
 
 ### Mobile Web Standards:
 - [x] Viewport configuration
@@ -242,14 +243,14 @@
 
 ## ✨ Summary
 
-Your portfolio website is now fully optimized for mobile devices with:
+Your portfolio website has been optimized for mobile devices with:
 - ✅ Proper touch targets (44x44px minimum)
 - ✅ Touch-friendly interactions
 - ✅ Responsive design across all screen sizes
-- ✅ Accessibility compliance (WCAG 2.1 AA)
+- ✅ Accessibility features implemented (pending validation)
 - ✅ Enhanced performance on mobile
 - ✅ User preference respect (motion, contrast)
 - ✅ Comprehensive documentation
 
-**Status**: Ready for production deployment
-**Recommendation**: Test on real devices before final release
+**Status**: Pending — awaiting verification on physical devices
+**Recommendation**: Complete physical-device, browser, accessibility, and performance checks before final release. See "Testing Checklist" section for items that require validation (marked with [ ]).

@@ -63,7 +63,6 @@ export const UI = (): JSX.Element => {
                   : "bg-black/30 text-white hover:bg-black/50"
               }`}
               onClick={() => setPage(index)}
-              onTouchEnd={() => setPage(index)}
               aria-label={index === 0 ? "Cover" : `Page ${index}`}
               role="tab"
               aria-selected={index === page}

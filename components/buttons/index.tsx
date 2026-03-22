@@ -110,7 +110,7 @@ export function Magnetic({ children, className }: MagneticProps) {
             element.removeEventListener("mousemove", handleMouseMove);
             element.removeEventListener("mouseleave", handleMouseLeave);
         };
-    }, []);
+    }, [isTouchDevice]);
 
     return (
         <div 

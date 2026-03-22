@@ -14,6 +14,7 @@ import {
   type JSX,
   type MouseEvent as ReactMouseEvent,
 } from "react";
+import { useIsTouchDevice } from "@/hooks/use-is-touch-device";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types & Interfaces
@@ -165,22 +166,7 @@ export function CursorProvider({
   const [label,       setLabel]       = useState<LabelPayload>({ kind: "none" });
   const [mediaSrc,    setMediaSrc]    = useState<string>("");
   const [isActive,    setIsActive]    = useState<boolean>(false);
-  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
-
-  // Detect touch device on mount
-  useEffect(() => {
-    const checkTouch = () => {
-      setIsTouchDevice(
-        window.matchMedia("(pointer: coarse)").matches ||
-        "ontouchstart" in window ||
-        navigator.maxTouchPoints > 0
-      );
-    };
-    
-    checkTouch();
-    window.addEventListener("resize", checkTouch);
-    return () => window.removeEventListener("resize", checkTouch);
-  }, []);
+  const isTouchDevice = useIsTouchDevice();
 
   const cfg: CursorConfig = { ...DEFAULT_CONFIG, ...config };
 
