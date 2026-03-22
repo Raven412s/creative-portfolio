@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, ReactNode } from 'react'
 import gsap from 'gsap';
 import clsx from "clsx"
+import { useIsTouchDevice } from '@/hooks/use-is-touch-device';
 
 type ButtonProps = {
     children: React.ReactNode
@@ -19,7 +20,7 @@ export function Button({
         return (
             <div
                 className={clsx(
-                    "relative overflow-hidden inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-zinc-800 dark:border-zinc-200 group cursor-pointer",
+                    "relative overflow-hidden inline-flex items-center justify-center px-6 py-2.5 rounded-full border border-zinc-800 dark:border-zinc-200 group cursor-pointer active:scale-95 transition-transform min-h-[44px] min-w-[44px]",
                     className
                 )}
             >
@@ -70,10 +71,11 @@ interface MagneticProps {
 export function Magnetic({ children, className }: MagneticProps) {
     // Wrapper div ke liye ref
     const magneticRef = useRef<HTMLDivElement>(null);
+    const isTouchDevice = useIsTouchDevice();
 
     useEffect(() => {
         const element = magneticRef.current;
-        if (!element) return;
+        if (!element || isTouchDevice) return;
 
         const xTo = gsap.quickTo(element, "x", {
             duration: 1,

@@ -181,7 +181,7 @@
 
 /* Sabhi modern browsers ke liye */
 ::selection {
-  background-color: #1cf3a157; /* Background color (Aapka green color) */
+  background-color: #1cf3a157; /* Background color (Aapka emerald color) */
   color: #000000;            /* Text color */
 }
 
@@ -213,4 +213,111 @@
     );
 
   background-size: var(--s) calc(var(--s) * 0.577);
+}
+
+/* Mobile & Touch Accessibility Optimizations */
+@media (pointer: coarse) {
+  /* Hide hover effects on touch devices */
+  button:hover,
+  a:hover,
+  .group:hover,
+  .group-hover\:top-1\/2 {
+    @apply no-underline;
+  }
+
+  /* Improve touch button targets - minimum 44x44px */
+  button,
+  a[role="button"],
+  [role="button"] {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Remove double tap delay for touch buttons */
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    touch-action: manipulation;
+  }
+
+  /* Improve focus visibility on touch */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    @apply outline-2 outline-offset-2;
+  }
+
+  /* Disable hover-based state changes */
+  .hover\:border-white:hover {
+    @apply hover:border-transparent;
+  }
+}
+
+/* Mobile viewport optimizations */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  /* Ensure proper spacing on mobile */
+  .menuOverlay {
+    padding-top: 60px;
+  }
+
+  /* Better text readability on mobile */
+  h1, h2, h3, h4, h5, h6 {
+    word-break: break-word;
+  }
+
+  /* Prevent horizontal scroll */
+  * {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
+
+/* High DPI screens optimization */
+@media (min-resolution: 2dppx) {
+  button,
+  a,
+  input {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Improve contrast for light on dark */
+@media (prefers-contrast: more) {
+  .dark {
+    --border: oklch(1 0 0 / 20%);
+    --input: oklch(1 0 0 / 25%);
+  }
+}
+
+/* Support for landscape mode on small devices */
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    overflow-y: auto;
+  }
+
+  section {
+    min-height: auto;
+  }
 }

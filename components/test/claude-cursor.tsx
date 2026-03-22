@@ -165,6 +165,22 @@ export function CursorProvider({
   const [label,       setLabel]       = useState<LabelPayload>({ kind: "none" });
   const [mediaSrc,    setMediaSrc]    = useState<string>("");
   const [isActive,    setIsActive]    = useState<boolean>(false);
+  const [isTouchDevice, setIsTouchDevice] = useState<boolean>(false);
+
+  // Detect touch device on mount
+  useEffect(() => {
+    const checkTouch = () => {
+      setIsTouchDevice(
+        window.matchMedia("(pointer: coarse)").matches ||
+        "ontouchstart" in window ||
+        navigator.maxTouchPoints > 0
+      );
+    };
+    
+    checkTouch();
+    window.addEventListener("resize", checkTouch);
+    return () => window.removeEventListener("resize", checkTouch);
+  }, []);
 
   const cfg: CursorConfig = { ...DEFAULT_CONFIG, ...config };
 
@@ -186,13 +202,15 @@ export function CursorProvider({
   return (
     <CursorContext.Provider value={{ setState, resetState, setIsActive, isActive }}>
       {children}
-      <MouseFollower
-        cursorState={cursorState}
-        label={label}
-        mediaSrc={mediaSrc}
-        isActive={isActive}
-        config={cfg}
-      />
+      {!isTouchDevice && (
+        <MouseFollower
+          cursorState={cursorState}
+          label={label}
+          mediaSrc={mediaSrc}
+          isActive={isActive}
+          config={cfg}
+        />
+      )}
     </CursorContext.Provider>
   );
 }
