@@ -4,6 +4,7 @@ import gsap from 'gsap';
 import { Menu, MousePointerClickIcon, X } from 'lucide-react';
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useIsTouchDevice } from '@/hooks/use-is-touch-device';
 import { Magnetic } from '../buttons';
 import RavenLogo from '../pages-and-sections/home-page/hero/raven-logo';
 import { useCursorElement } from '../test/claude-cursor';
@@ -16,6 +17,7 @@ const Navbar = () => {
     const menuRef = useRef<HTMLDivElement | null>(null);
     const squareContainerRef = useRef<HTMLDivElement | null>(null);
     const [overlayVisible, setOverlayVisible] = useState(false);
+    const isTouchDevice = useIsTouchDevice();
 
     const links: MenuLink[] = [
         { name: "Home", href: "/" },
@@ -41,8 +43,6 @@ const Navbar = () => {
 
     }, []);
 
-    const squareSize = squareSizeRef.current;
-
     // 1. Memory Leak Fix: Squares ko sirf ek baar initialize karein
     useEffect(() => {
         const container = squareContainerRef.current;
@@ -50,6 +50,7 @@ const Navbar = () => {
 
         const screenWidth = window.innerWidth;
         const screenHeight = window.innerHeight;
+        const squareSize = squareSizeRef.current;
         const numCols = Math.ceil(screenWidth / squareSize);
         const numRows = Math.ceil(screenHeight / squareSize);
         const total = numCols * numRows;
@@ -158,73 +159,134 @@ const Navbar = () => {
       backdrop-blur-[20px]
       shadow-[0_0_50px_-10px_rgba(0,0,0,0.65)]
       z-9999 cursor-pointer
+      min-h-[44px] min-w-[44px] sm:min-h-auto sm:min-w-auto
       "
             >
-                <Magnetic><div className="relative flex items-center justify-center pointer-events-auto" {...h}>
-                    <AnimatePresence mode="wait">
-                        {overlayVisible ? (
-                            <motion.div
-                                key="close"
-                                initial={{
-                                    rotate: -90,
-                                    opacity: 0,
-                                    scale: 0.5,
-                                }}
-                                animate={{
-                                    rotate: 0,
-                                    opacity: 1,
-                                    scale: 1,
-                                }}
-                                exit={{
-                                    rotate: 90,
-                                    opacity: 0,
-                                    scale: 0.5,
-                                }}
-                                transition={{
-                                    duration: 0.25,
-                                    ease: "easeInOut",
-                                }}
-                            >
-                                <X className="menuIconSize" />
-                            </motion.div>
-                        ) : (
-                            <motion.div
-                                key="menu"
-                                initial={{
-                                    rotate: 90,
-                                    opacity: 0,
-                                    scale: 0.5,
-                                }}
-                                animate={{
-                                    rotate: 0,
-                                    opacity: 1,
-                                    scale: 1,
-                                }}
-                                exit={{
-                                    rotate: -90,
-                                    opacity: 0,
-                                    scale: 0.5,
-                                }}
-                                transition={{
-                                    duration: 0.25,
-                                    ease: "easeInOut",
-                                }}
-                            >
-                                <Menu className="menuIconSize" />
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div></Magnetic>
+                {isTouchDevice ? (
+                    <div className="relative flex items-center justify-center pointer-events-auto" {...h}>
+                        <AnimatePresence mode="wait">
+                            {overlayVisible ? (
+                                <motion.div
+                                    key="close"
+                                    initial={{
+                                        rotate: -90,
+                                        opacity: 0,
+                                        scale: 0.5,
+                                    }}
+                                    animate={{
+                                        rotate: 0,
+                                        opacity: 1,
+                                        scale: 1,
+                                    }}
+                                    exit={{
+                                        rotate: 90,
+                                        opacity: 0,
+                                        scale: 0.5,
+                                    }}
+                                    transition={{
+                                        duration: 0.25,
+                                        ease: "easeInOut",
+                                    }}
+                                >
+                                    <X className="menuIconSize" />
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="menu"
+                                    initial={{
+                                        rotate: 90,
+                                        opacity: 0,
+                                        scale: 0.5,
+                                    }}
+                                    animate={{
+                                        rotate: 0,
+                                        opacity: 1,
+                                        scale: 1,
+                                    }}
+                                    exit={{
+                                        rotate: -90,
+                                        opacity: 0,
+                                        scale: 0.5,
+                                    }}
+                                    transition={{
+                                        duration: 0.25,
+                                        ease: "easeInOut",
+                                    }}
+                                >
+                                    <Menu className="menuIconSize" />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                ) : (
+                    <Magnetic><div className="relative flex items-center justify-center pointer-events-auto" {...h}>
+                        <AnimatePresence mode="wait">
+                            {overlayVisible ? (
+                                <motion.div
+                                    key="close"
+                                    initial={{
+                                        rotate: -90,
+                                        opacity: 0,
+                                        scale: 0.5,
+                                    }}
+                                    animate={{
+                                        rotate: 0,
+                                        opacity: 1,
+                                        scale: 1,
+                                    }}
+                                    exit={{
+                                        rotate: 90,
+                                        opacity: 0,
+                                        scale: 0.5,
+                                    }}
+                                    transition={{
+                                        duration: 0.25,
+                                        ease: "easeInOut",
+                                    }}
+                                >
+                                    <X className="menuIconSize" />
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="menu"
+                                    initial={{
+                                        rotate: 90,
+                                        opacity: 0,
+                                        scale: 0.5,
+                                    }}
+                                    animate={{
+                                        rotate: 0,
+                                        opacity: 1,
+                                        scale: 1,
+                                    }}
+                                    exit={{
+                                        rotate: -90,
+                                        opacity: 0,
+                                        scale: 0.5,
+                                    }}
+                                    transition={{
+                                        duration: 0.25,
+                                        ease: "easeInOut",
+                                    }}
+                                >
+                                    <Menu className="menuIconSize" />
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div></Magnetic>
+                )}
             </motion.div>
-            <nav className="fixed top-0 w-full flex justify-between mix-blend-difference z-1000 mt-2 lg:mt-[0.9vw]">
+            <nav className="fixed top-0 w-full flex justify-between mix-blend-difference z-1000 mt-2 lg:mt-[0.9vw] pointer-events-none">
                 {[1, 2].map((_, i) => (
-                    <Magnetic key={i}>
-                        <div className="flex items-center">
-                            <p className="navText">RAVEN</p>
-                            <RavenLogo />
-                            <p className="navText">UNLEASHED</p>
-                        </div>
-                    </Magnetic>
+                    <div key={i} className={isTouchDevice ? " " : "pointer-events-auto"}>
+                        <Magnetic>
+                            <div className="flex items-center">
+                                <p className="navText">RAVEN</p>
+                                <RavenLogo />
+                                <p className="navText">UNLEASHED</p>
+                            </div>
+                        </Magnetic>
+                    </div>
                 ))}
             </nav>
             <div
@@ -245,7 +307,7 @@ const Navbar = () => {
                                 <span className="menuIndex">
                                     ({String(i + 1).padStart(2, "0")})
                                 </span>
-                                <Link href={link.href} className="menuLink" onClick={closeMenu} {...h_link}>
+                                <Link href={link.href} className="menuLink active:scale-95 transition-transform sm:active:scale-100" onClick={closeMenu} {...(isTouchDevice ? {} : h_link)} role="menuitem" tabIndex={0}>
                                     <StaggerText text={link.name} />
                                 </Link>
                             </div>

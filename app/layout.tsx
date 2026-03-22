@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import Navbar from "@/components/global/navbar";
 import SmoothScrolling from "@/components/providers/smooth-scrolling";
@@ -7,6 +7,13 @@ import { CursorProvider } from "@/components/test/claude-cursor";
 import { geistMono, geistSans, gridular, inter, irishGrover, italiana, jacquard24, kings, kolkerBrush, playfair, poppins, rmMono, rmNeue } from "./fonts/fonts";
 import "./globals.css";
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1.0,
+  maximumScale: 5.0,
+  userScalable: true,
+  interactiveWidget: "resizes-content",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://portfolio-ashutosh-sharan.vercel.app/"),
@@ -71,7 +78,6 @@ export const metadata: Metadata = {
   icons: {
     icon: "/assets/svg/raven.svg",
     shortcut: "/assets/svg/raven.svg",
-    apple: "/apple-touch-icon.png",
   },
 
   category: "technology",
@@ -88,7 +94,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${playfair.variable} ${irishGrover.variable} ${italiana.variable} ${jacquard24.variable} ${kolkerBrush.variable} ${kings.variable} 
          ${gridular.variable} ${rmMono.variable} ${rmNeue.variable}
-         antialiased`}
+         antialiased touch-manipulation`}
          suppressHydrationWarning
       >
         <SmoothScrolling>
