@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useIsTouchDevice } from '@/hooks/use-is-touch-device';
 import { Magnetic } from '../buttons';
-import RavenLogo from '../pages-and-sections/home-page/hero/raven-logo';
-import { useCursorElement, type CursorElementHandlers } from '../test/claude-cursor';
+import RavenLogo from '../svgs/raven-logo';
+import { useCursorElement, type CursorElementHandlers } from '../cursor/claude-cursor';
 import StaggerText from '../ui/stagger-text';
 
 type MenuLink = {

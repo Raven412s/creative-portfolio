@@ -229,7 +229,7 @@
   button,
   a[role="button"],
   [role="button"] {
-    @apply min-h-[44px] min-w-[44px];
+    @apply min-h-11 min-w-11;
   }
 
   /* Remove double tap delay for touch buttons */
@@ -326,3 +326,4 @@
     min-height: auto;
   }
 }
+
