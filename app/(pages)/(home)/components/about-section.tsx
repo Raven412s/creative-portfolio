@@ -263,7 +263,7 @@ export function AboutSection() {
           <ClipText
             stroke
             strokeWidth={0.5}
-            className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl uppercase font-medium font-rmNeue max-w-6xl -ml-0 sm:-ml-0 md:-ml-20"
+            className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl uppercase font-medium font-rmNeue max-w-6xl ml-0 sm:ml-0 md:-ml-20"
           >
             <SplitText text="I a{m} a cr{ea}ti{v}e d{e}vel{op}er f{oc}us{e}d on bu{ild}ing {imm}ers{ive}, per{fo}rm{ant}, and vis{ual}ly str{ik}ing dig{it}al ex{pe}ri{en}ces th{at} bl{end} mo{ti}on, in{ter}ac{tion}, and de{sign} in{to} a se{am}less wh{ole}." />
           </ClipText>
