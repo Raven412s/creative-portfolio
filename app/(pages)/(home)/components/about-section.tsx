@@ -216,9 +216,9 @@ export function AboutSection() {
   return (
     <section
       ref={containerRef}
-      className="relative h-[280vh] sm:h-[300vh] lg:h-[300vh]"
+      className="relative h-[240vh]  lg:h-[300vh]"
     >
-      <div ref={pinRef} className="h-screen w-full relative overflow-hidden">
+      <div ref={pinRef} className="lg:h-screen h-screen w-full relative overflow-hidden">
         {/* INTRO TEXT */}
         <div
           ref={introRef}

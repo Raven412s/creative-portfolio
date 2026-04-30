@@ -172,17 +172,18 @@
   }
 
   .letter {
-  display: inline-block;
-  will-change: transform;
-}
+    display: inline-block;
+    will-change: transform;
+  }
 
 }
-
 
 /* Sabhi modern browsers ke liye */
 ::selection {
-  background-color: #1cf3a157; /* Background color (Aapka emerald color) */
-  color: #000000;            /* Text color */
+  background-color: #1cf3a157;
+  /* Background color (Aapka emerald color) */
+  color: #000000;
+  /* Text color */
 }
 
 /* Firefox ke liye (Older versions) */
@@ -199,24 +200,20 @@
   --c2: #4e4f51;
   --c3: #3c3c3c;
 
-  background: repeating-conic-gradient(
-        from 30deg,
-        transparent 0 120deg,
-        var(--c3) 0 180deg
-      )
-      calc(0.5 * var(--s)) calc(0.5 * var(--s) * 0.577),
-    repeating-conic-gradient(
-      from 30deg,
+  background: repeating-conic-gradient(from 30deg,
+      transparent 0 120deg,
+      var(--c3) 0 180deg) calc(0.5 * var(--s)) calc(0.5 * var(--s) * 0.577),
+    repeating-conic-gradient(from 30deg,
       var(--c1) 0 60deg,
       var(--c2) 0 120deg,
-      var(--c3) 0 180deg
-    );
+      var(--c3) 0 180deg);
 
   background-size: var(--s) calc(var(--s) * 0.577);
 }
 
 /* Mobile & Touch Accessibility Optimizations */
 @media (pointer: coarse) {
+
   /* Hide hover effects on touch devices */
   button:hover,
   a:hover,
@@ -270,7 +267,12 @@
   }
 
   /* Better text readability on mobile */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     overflow-wrap: break-word;
     word-break: normal;
   }
@@ -281,30 +283,21 @@
   }
 
   /* Prevent text overflow in specific elements */
-  pre, code, table {
+  pre,
+  code,
+  table {
     overflow-x: auto;
   }
 }
 
 /* High DPI screens optimization */
 @media (min-resolution: 2dppx) {
+
   button,
   a,
   input {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-}
-
-/* Reduce motion for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
@@ -327,3 +320,30 @@
   }
 }
 
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-5px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}

@@ -121,7 +121,7 @@ export function AsciiMorph({ files, pause = 5000 }: AsciiMorphProps) {
     return (
         <div 
             ref={containerRef}
-            className="w-full flex items-center justify-center overflow-hidden perspective-[1000px]"
+            className="w-full flex items-center justify-center overflow-visible  perspective-[1000px] text-center"
             style={{ transformStyle: 'preserve-3d' }}
         >
             <div
@@ -129,9 +129,10 @@ export function AsciiMorph({ files, pause = 5000 }: AsciiMorphProps) {
                     transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
                     transition: 'transform 0.1s ease-out'
                 }}
+                className='p-20'
             >
                 <pre
-                    className="font-mono text-white/40 select-none"
+                    className="font-mono text-white/50 select-none"
                     style={{
                         fontSize: 'clamp(4px, 0.7vw, 10px)',
                         letterSpacing: '0.03em',

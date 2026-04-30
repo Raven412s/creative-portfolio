@@ -6,6 +6,9 @@ import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRef, useEffect } from 'react'
+import { LeetCodeCard } from './leetcode-card'
+import ClipText from '@/components/text-animations/scroll-based-reveal'
+import SplitText from '@/components/text-animations/split-text'
 
 function ProjectLink({ project }: { project: typeof projects[number] }) {
   const h = useCursorElement({
@@ -26,8 +29,8 @@ function ProjectLink({ project }: { project: typeof projects[number] }) {
       className="group relative block border-b border-white/5 pb-5 mb-5 last:border-0 last:mb-0 transition-all duration-300 hover:border-white/20"
     >
       <div className="flex items-start justify-between gap-6">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className="text-[9px] uppercase tracking-[0.2em] text-white/30 font-mono">
               {project.title}
             </span>
@@ -41,7 +44,7 @@ function ProjectLink({ project }: { project: typeof projects[number] }) {
         </div>
 
         {project.images && project.images.length > 0 && (
-          <div className="flex -space-x-2 shrink-0">
+          <div className="hidden sm:flex -space-x-2 shrink-0">
             {project.images.slice(0, 3).map((img, j) => (
               <div
                 key={j}
@@ -157,134 +160,217 @@ const projects = [
 export function InfoSection() {
   const skillsRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll skills marquee on hover
-  useEffect(() => {
-    const el = skillsRef.current
-    if (!el) return
-    
-    let scrollAmount = 0
-    let animationId: number
-    
-    const scroll = () => {
-      if (!el) return
-      scrollAmount += 0.5
-      if (scrollAmount >= el.scrollWidth - el.clientWidth) {
-        scrollAmount = 0
-      }
-      el.scrollTo({ left: scrollAmount, behavior: 'smooth' })
-      animationId = requestAnimationFrame(scroll)
-    }
-    
-    const handleMouseEnter = () => {
-      animationId = requestAnimationFrame(scroll)
-    }
-    
-    const handleMouseLeave = () => {
-      cancelAnimationFrame(animationId)
-    }
-    
-    el.addEventListener('mouseenter', handleMouseEnter)
-    el.addEventListener('mouseleave', handleMouseLeave)
-    
-    return () => {
-      el.removeEventListener('mouseenter', handleMouseEnter)
-      el.removeEventListener('mouseleave', handleMouseLeave)
-      cancelAnimationFrame(animationId)
-    }
-  }, [])
-
   const skills = [
     "React", "Next.js", "TypeScript", "Node.js", "Express", "MongoDB", "PostgreSQL",
     "Tailwind", "GSAP", "Framer Motion", "WebRTC", "Socket.io", "Cloudinary", "AWS S3",
     "Stripe", "Razorpay", "Clerk", "JWT", "Zod", "Lenis", "next-intl"
   ]
 
+  const marqueeSkills = [...skills, ...skills]
+
   return (
     <section className='relative min-h-screen bg-[#0a0a0a] text-white overflow-hidden'>
-      {/* Ambient background linear */}
-      {/* <div className="absolute inset-0 bg-linear-to-br from-white/2 via-transparent to-black/20 pointer-events-none" /> */}
-      
-      <div className="sticky top-24 px-8 md:px-16 lg:px-24">
-        <Separator className='bg-white/10 mb-12' />
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24">
-          {/* LEFT COLUMN - ASCII + Skills */}
-          <div className="space-y-12">
-            {/* ASCII Art Container with hover tilt */}
-            <div className="relative group">
-              {/* <div className="absolute -inset-4 bg-linear-to-r from-white/5 to-transparent rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" /> */}
-              <div className="relative transform transition-transform duration-300 group-hover:scale-[1.02] flex items-center justify-center">
-                <AsciiMorph
-                  files={['/ascii/apple.txt', '/ascii/pineapple.txt', '/ascii/sunflower.txt','/ascii/ashutosh.txt', ]}
-                  pause={5000}
-                />
+
+      {/* ─── MOBILE LAYOUT (hidden on lg+) ─────────────────────────────────── */}
+      <div className="lg:hidden px-5 sm:px-8 pt-8 pb-12 space-y-10">
+
+        <Separator className='bg-white/10' />
+
+        {/* Quote */}
+        <p className='text-right text-xl text-slate-300/40 italic font-thin'>
+          &quot;Purpose-driven builds that combine design clarity with technical excellence.&quot;
+        </p>
+
+        {/* Selected Works */}
+        <div className="space-y-6">
+          <div className="space-y-1">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">
+              Selected Works
+            </span>
+            <h2 className="text-2xl font-light tracking-tight text-white/90">
+              Real-world
+              <span className="block text-white/40 text-sm font-mono mt-1">end-to-end development</span>
+            </h2>
+          </div>
+
+          <div className="space-y-1">
+            {projects.map((project, i) => (
+              <ProjectLink key={i} project={project} />
+            ))}
+          </div>
+
+          <div className="flex items-center gap-4 text-[10px] font-mono text-white/20 flex-wrap">
+            <span>✦ continuously shipping</span>
+            <span className="w-1 h-1 rounded-full bg-white/20" />
+            <span>✦ production ready</span>
+          </div>
+        </div>
+
+        <Separator className='bg-white/10' />
+
+        {/* Big tagline */}
+        <ClipText
+          stroke
+          strokeWidth={1}
+          direction='right'
+          className="text-2xl sm:text-3xl text-right uppercase font-medium font-rmNeue"
+        >
+          <SplitText text="{D}es{i}gn{e}d, {d}ev{e}lo{pe}d, an{d} {d}ep{loy}ed w{it}h p{ur}po{s}e." />
+        </ClipText>
+
+        <Separator className='bg-white/10' />
+
+        {/* ASCII + LeetCode stacked */}
+        <div className="flex flex-col gap-8">
+          <div className="flex justify-center">
+            <div className="transform scale-[1.3] origin-center">
+              <AsciiMorph
+                files={[
+                  '/ascii/apple.txt',
+                  '/ascii/flower.txt',
+                  '/ascii/pineapple.txt',
+                  '/ascii/sunflower.txt',
+                  '/ascii/ashutosh.txt'
+                ]}
+                pause={5000}
+              />
+            </div>
+          </div>
+
+          <div className="w-full">
+            <LeetCodeCard />
+          </div>
+        </div>
+
+        {/* Skills marquee */}
+        <div className="space-y-4 overflow-hidden group">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">
+              Toolkit
+            </span>
+            <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
+          </div>
+          <div className="overflow-hidden cursor-pointer">
+            <div className="flex gap-3 whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
+              {marqueeSkills.map((skill, idx) => (
+                <span
+                  key={idx}
+                  className="text-xs text-white/40 font-mono tracking-tight hover:text-white/80 transition-all duration-200"
+                >
+                  {skill}
+                  <span className="mx-2 text-white/10">/</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* ─── DESKTOP LAYOUT (hidden below lg) — ORIGINAL, UNTOUCHED ────────── */}
+      <div className="hidden lg:block">
+        <div className="sticky top-24 px-8 md:px-16 lg:px-24">
+          <Separator className='bg-white/10 mb-12' />
+
+          <div className="flex justify-between items-end gap-16 h-[90vh]">
+
+            {/* LEFT — Projects */}
+            <div className="space-y-8 w-[calc(33.333%-13.333px)] max-h-[calc(100vh+5px)]">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">
+                  Selected Works
+                </span>
+                <h2 className="text-3xl font-light tracking-tight text-white/90">
+                  Real-world
+                  <span className="block text-white/40 text-sm font-mono mt-1">end-to-end development</span>
+                </h2>
+              </div>
+
+              <div className="mt-8 space-y-1">
+                {projects.map((project, i) => (
+                  <ProjectLink key={i} project={project} />
+                ))}
+              </div>
+
+              <div className="pt-8 flex items-center gap-4 text-[10px] font-mono text-white/20">
+                <span>✦ continuously shipping</span>
+                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span>✦ production ready</span>
               </div>
             </div>
 
-            {/* Minimal Skills Section */}
-            <div className="space-y-4">
+            {/* RIGHT */}
+            <div className="flex flex-col justify-between items-end h-full py-12">
+              <p className='max-w-lg text-right text-3xl text-slate-300/40 italic font-thin'>
+                &quot;Purpose-driven builds that combine design clarity with technical excellence.&quot;
+              </p>
+              <ClipText
+                stroke
+                strokeWidth={1}
+                direction='right'
+                className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl text-right uppercase font-medium font-rmNeue max-w-6xl ml-0 sm:ml-0 md:-ml-20"
+              >
+                <SplitText text="{D}es{i}gn{e}d, {d}ev{e}lo{pe}d, an{d} {d}ep{loy}ed w{it}h p{ur}po{s}e." />
+              </ClipText>
+            </div>
+          </div>
+
+          <Separator className='bg-white/10 mb-12 mt-10' />
+
+          <div className="flex flex-col gap-10 mt-10">
+
+            {/* TOP ROW */}
+            <div className="flex gap-10 items-start">
+
+              {/* ASCII Morph */}
+              <div className="relative group max-h-[40vh] flex flex-2 items-center justify-center w-[120px] shrink-0">
+                <div className="relative transform transition-transform scale-[0.7] duration-300 group-hover:scale-[.72] flex items-center justify-center">
+                  <AsciiMorph
+                    files={[
+                      '/ascii/apple.txt',
+                      '/ascii/flower.txt',
+                      '/ascii/pineapple.txt',
+                      '/ascii/sunflower.txt',
+                      '/ascii/ashutosh.txt'
+                    ]}
+                    pause={5000}
+                  />
+                </div>
+              </div>
+
+              {/* LeetCode */}
+              <div className="flex-4 ">
+                <LeetCodeCard />
+              </div>
+
+            </div>
+
+            {/* BOTTOM ROW — Skills */}
+            <div className="px-10 max-h-[20vh] space-y-4 pb-8 overflow-hidden flex justify-end flex-col group">
+
               <div className="flex items-center gap-2">
                 <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">
                   Toolkit
                 </span>
                 <div className="flex-1 h-px bg-linear-to-r from-white/10 to-transparent" />
               </div>
-              
-              <div 
-                ref={skillsRef}
-                className="overflow-x-auto scrollbar-hide cursor-pointer"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                <div className="flex gap-3 whitespace-nowrap pb-2">
-                  {skills.map((skill, idx) => (
-                    <span 
+
+              <div className="overflow-hidden cursor-pointer">
+                <div className="flex gap-3 whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
+                  {marqueeSkills.map((skill, idx) => (
+                    <span
                       key={idx}
-                      className="text-xs text-white/40 font-mono tracking-tight hover:text-white/80 
-                                 transition-all duration-200 hover:tracking-normal"
+                      className="text-xs text-white/40 font-mono tracking-tight hover:text-white/80 transition-all duration-200"
                     >
                       {skill}
-                      {idx < skills.length - 1 && (
-                        <span className="mx-2 text-white/10">/</span>
-                      )}
+                      <span className="mx-2 text-white/10">/</span>
                     </span>
                   ))}
                 </div>
               </div>
-              <p className="text-[10px] text-white/20 font-mono tracking-wide">
-                Hover to scroll through stack
-              </p>
+
             </div>
 
-            {/* Subtle accent element */}
-            <div className="hidden lg:block pt-8">
-              <div className="w-12 h-px bg-linear-to-r from-white/20 to-transparent" />
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN - Projects */}
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">
-                Selected Works
-              </span>
-              <h2 className="text-3xl font-light tracking-tight text-white/90">
-                Real-world
-                <span className="block text-white/40 text-sm font-mono mt-1">end-to-end development</span>
-              </h2>
-            </div>
-
-            <div className="mt-8 space-y-1">
-              {projects.map((project, i) => (
-                <ProjectLink key={i} project={project} />
-              ))}
-            </div>
-
-            {/* Footer tinge */}
-            <div className="pt-8 flex items-center gap-4 text-[10px] font-mono text-white/20">
-              <span>✦ continuously shipping</span>
-              <span className="w-1 h-1 rounded-full bg-white/20" />
-              <span>✦ production ready</span>
-            </div>
           </div>
         </div>
       </div>

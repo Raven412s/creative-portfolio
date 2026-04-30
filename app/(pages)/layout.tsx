@@ -94,7 +94,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${playfair.variable} ${irishGrover.variable} ${italiana.variable} ${jacquard24.variable} ${kolkerBrush.variable} ${kings.variable} 
          ${gridular.variable} ${rmMono.variable} ${rmNeue.variable}
-         antialiased touch-manipulation`}
+         antialiased touch-manipulation [scrollbar:1px,default]`}
          suppressHydrationWarning
       >
         <SmoothScrolling>

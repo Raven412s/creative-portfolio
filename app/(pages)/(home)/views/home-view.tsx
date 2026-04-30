@@ -2,6 +2,7 @@
 import { AboutSection } from "@/app/(pages)/(home)/components/about-section";
 import { HeroSection } from "@/app/(pages)/(home)/components/hero-section";
 import { InfoSection } from "@/app/(pages)/(home)/components/info-section";
+import { DocumentsSection } from "../components/documents-section";
 
 export function HomeView() {
     return (
@@ -9,6 +10,8 @@ export function HomeView() {
             <HeroSection />
             <AboutSection />
             <InfoSection />
+            <DocumentsSection/>
+            
         </main>
     )
 }
