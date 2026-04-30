@@ -142,12 +142,17 @@ export function AboutSection() {
 
       /* ================= MOBILE (< 768px) ================= */
       mm.add("(max-width: 767px)", () => {
-        // Initial positions
+        // First, override the initial transform that comes from CSS
         gsap.set(imageRef.current, {
           scale: 0.5,
           clipPath: "inset(100% 0% 0% 0%)",
           borderRadius: "1.5rem",
+          x: "-50%",  // Explicitly set the centering transform
+          y: "-50%",
+          top: "50%",
+          left: "50%",
         });
+
         gsap.set(aboutRef.current, { y: "100vh", color: "#030303" });
         gsap.set(introRef.current, { opacity: 1, y: 0 });
 
@@ -169,6 +174,7 @@ export function AboutSection() {
           duration: 0.6,
           ease: "smooth",
         }, 0.1);
+
         tl.to(introRef.current, {
           opacity: 0,
           y: -30,
@@ -176,14 +182,14 @@ export function AboutSection() {
           ease: "smooth",
         }, 0.1);
 
-        // 2. Expand image to full width at top
+        // 2. Expand image to full width at top - FIXED VERSION
         tl.to(imageRef.current, {
           width: "100vw",
           height: "45vh",
           top: "0%",
-          left: "0%",
-          x: "0%",
-          y: "0%",
+          left: "0%",  // Changed from 50% to 0%
+          x: "0%",     // Remove the -50% translation
+          y: "0%",     // Remove the -50% translation
           borderRadius: "0rem",
           duration: 0.8,
           ease: "smooth",
@@ -202,6 +208,7 @@ export function AboutSection() {
           duration: 0.6,
           ease: "smooth",
         }, 1.6);
+
         tl.to(aboutRef.current, {
           color: "#f4f4f5",
           duration: 0.6,
