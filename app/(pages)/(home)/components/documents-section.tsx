@@ -318,9 +318,9 @@ export function DocumentsSection() {
             canvas.addEventListener("mousemove", handleMouseMove)
             canvas.addEventListener("mouseleave", handleMouseLeave)
 
-            // Store for cleanup
-            ;(canvas as any)._mmove = handleMouseMove
-            ;(canvas as any)._mleave = handleMouseLeave
+                // Store for cleanup
+                ; (canvas as any)._mmove = handleMouseMove
+                ; (canvas as any)._mleave = handleMouseLeave
 
             cardRefs.current.forEach((card, idx) => {
                 if (!card) return
@@ -409,7 +409,7 @@ export function DocumentsSection() {
             })
         }
 
-        const syncOffscreen = () => {}
+        const syncOffscreen = () => { }
         window.addEventListener("resize", syncOffscreen)
 
         const draw = () => {
@@ -536,16 +536,16 @@ export function DocumentsSection() {
             {!isMobile && (
                 <div
                     className={cn(
-                        "absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500 z-[19]",
+                        "absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500 z-19",
                         glowFlags[i] ? "opacity-100" : "opacity-0"
                     )}
                     style={{
                         boxShadow: `
-                            0 0 0 1.5px rgba(${doc.glowColorEdge}, 0.7),
-                            0 0 16px 6px  rgba(${doc.glowColorEdge}, 0.45),
-                            0 0 32px 12px rgba(${doc.glowColorEdge}, 0.25),
-                            0 0 56px 20px rgba(${doc.glowColorEdge}, 0.1)
-                        `,
+                        0 0 0 1.5px rgba(${doc.glowColorEdge}, 0.7),
+                        0 0 16px 6px  rgba(${doc.glowColorEdge}, 0.45),
+                        0 0 32px 12px rgba(${doc.glowColorEdge}, 0.25),
+                        0 0 56px 20px rgba(${doc.glowColorEdge}, 0.1)
+                    `,
                     }}
                 />
             )}
@@ -555,31 +555,75 @@ export function DocumentsSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                    "relative w-full h-full border-2 rounded-2xl p-6 flex flex-col items-center justify-center",
+                    "relative w-full h-full border-2 rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-center",
                     "shadow-lg transition-all duration-300 overflow-hidden",
                     // Hover shadow only on desktop (touch has no hover)
                     "md:hover:shadow-2xl",
+                    // Mobile optimizations
+                    "active:scale-[0.98] sm:active:scale-100", // Subtle tap feedback on mobile
                     doc.color
                 )}
             >
-                <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-current opacity-30 rounded-tr-sm pointer-events-none" />
-                <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-current opacity-30 rounded-tl-sm pointer-events-none" />
-                <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-current opacity-30 rounded-br-sm pointer-events-none" />
-                <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-current opacity-30 rounded-bl-sm pointer-events-none" />
-                <div className="absolute top-6 right-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
-                <div className="absolute bottom-6 left-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
+                {/* Decorative corners - scaled for mobile */}
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-2 h-2 sm:w-3 sm:h-3 border-t-2 border-r-2 border-current opacity-30 rounded-tr-sm pointer-events-none" />
+                <div className="absolute top-2 left-2 sm:top-3 sm:left-3 w-2 h-2 sm:w-3 sm:h-3 border-t-2 border-l-2 border-current opacity-30 rounded-tl-sm pointer-events-none" />
+                <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-2 h-2 sm:w-3 sm:h-3 border-b-2 border-r-2 border-current opacity-30 rounded-br-sm pointer-events-none" />
+                <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 w-2 h-2 sm:w-3 sm:h-3 border-b-2 border-l-2 border-current opacity-30 rounded-bl-sm pointer-events-none" />
+
+                {/* Dots - adjusted for mobile */}
+                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
+                <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
 
                 <div className="relative z-10 text-center">
-                    <div className={cn("mb-4 transition-transform duration-300 group-hover:scale-110", doc.iconColor)}>
+                    {/* Icon - responsive sizing */}
+                    <div className={cn(
+                        "mb-3 sm:mb-4 transition-transform duration-300",
+                        "group-hover:scale-110",
+                        // Mobile: slightly smaller icon
+                        "scale-90 sm:scale-100",
+                        doc.iconColor
+                    )}>
                         {doc.icon}
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">{doc.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{doc.description}</p>
-                    <div className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                        <span>Explore</span>
+
+                    {/* Title - responsive text sizes */}
+                    <h3 className={cn(
+                        "font-bold text-gray-800 mb-1",
+                        "text-lg sm:text-xl", // Smaller on mobile
+                        "leading-tight sm:leading-normal"
+                    )}>
+                        {doc.title}
+                    </h3>
+
+                    {/* Description - responsive text */}
+                    <p className={cn(
+                        "text-gray-600 mb-3 sm:mb-4",
+                        "text-xs sm:text-sm", // Smaller on mobile
+                        "px-2 sm:px-0", // Add some horizontal padding on mobile
+                        "line-clamp-2 sm:line-clamp-none" // Limit lines on mobile if needed
+                    )}>
+                        {doc.description}
+                    </p>
+
+                    {/* CTA Button - touch-friendly */}
+                    <div className={cn(
+                        "inline-flex items-center gap-1.5 sm:gap-2 text-sm font-medium",
+                        "text-gray-700 group-hover:text-gray-900",
+                        // Better touch target on mobile
+                        "py-2 px-3 sm:py-0 sm:px-0",
+                        "rounded-lg sm:rounded-none",
+                        "active:bg-gray-100 sm:active:bg-transparent" // Visual feedback on tap
+                    )}>
+                        <span className="text-xs sm:text-sm">Explore</span>
                         <svg
-                            className="w-4 h-4 transform transition-transform duration-300 group-hover:translate-x-1"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            className={cn(
+                                "w-3 h-3 sm:w-4 sm:h-4",
+                                "transform transition-transform duration-300",
+                                "group-hover:translate-x-1"
+                            )}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                         >
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
@@ -587,7 +631,7 @@ export function DocumentsSection() {
                 </div>
             </a>
         </>
-    )
+    );
 
     return (
         <section className="relative w-full bg-black overflow-hidden flex items-center justify-center min-h-screen">
