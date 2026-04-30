@@ -58,8 +58,8 @@ export function AboutSection() {
         tl.to(imageRef.current, {
           width: "50vw",
           height: "100vh",
-          x: "0vw",
-          y: "-50vh",
+          x: "50%",
+          y: "0vh",
           borderRadius: "0rem",
           duration: 1.2,
           ease: "smooth",

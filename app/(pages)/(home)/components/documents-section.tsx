@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 import { cn } from "@/lib/utils";
 import gsap from "gsap";
@@ -165,15 +164,10 @@ function isVisible(p: Particle, width: number, height: number, margin = 50): boo
     return p.x > -margin && p.x < width + margin && p.y > -margin && p.y < height + margin
 }
 
-// Fixed rotations per card so they're stable across renders on mobile
-// (same values as the Tailwind classes, but as inline style degrees)
-const MOBILE_ROTATIONS = [-3, 2, -1, 6, -2, 3]
-
 export function DocumentsSection() {
+    // Single boolean array — only triggers re-render when a card's glow state actually toggles
     const glowState = useRef<boolean[]>(Array(CARD_COUNT).fill(false))
     const [glowFlags, setGlowFlags] = useState<boolean[]>(Array(CARD_COUNT).fill(false))
-    // Detect touch/mobile — set after mount to avoid SSR mismatch
-    const [isMobile, setIsMobile] = useState(false)
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const cardRefs = useRef<(HTMLDivElement | null)[]>(Array(CARD_COUNT).fill(null))
@@ -182,22 +176,11 @@ export function DocumentsSection() {
     const activeGlowColors = useRef<{ [key: number]: string }>({})
     const activeGlowEdgeColors = useRef<{ [key: number]: string }>({})
 
-    // Detect mobile once on mount
-    useEffect(() => {
-        const check = () => setIsMobile(window.matchMedia("(pointer: coarse)").matches)
-        check()
-        window.matchMedia("(pointer: coarse)").addEventListener("change", check)
-        return () => window.matchMedia("(pointer: coarse)").removeEventListener("change", check)
-    }, [])
-
     useEffect(() => {
         const canvas = canvasRef.current
         if (!canvas) return
         const ctx = canvas.getContext("2d", { alpha: true, desynchronized: true })
         if (!ctx) return
-
-        // ─── Mobile: fewer particles, no interaction at all ───
-        const particleCount = isMobile ? 200 : PARTICLE_COUNT
 
         let cardRects: (RelativeRect | null)[] = []
         let width = canvas.width
@@ -233,18 +216,14 @@ export function DocumentsSection() {
         resize()
         window.addEventListener("resize", resize)
 
-        const particles = generateParticles(particleCount, width, height)
+        const particles = generateParticles(PARTICLE_COUNT, width, height)
 
         let animationId: number
         let t = 0
 
-        // ─── Desktop-only: mouse + card hover state ───
         let mouseX = -9999
         let mouseY = -9999
         let needsMouseUpdate = false
-        const enterHandlers: (() => void)[] = []
-        const leaveHandlers: (() => void)[] = []
-        const cardReadyCount = new Array(CARD_COUNT).fill(0)
 
         const processMouseUpdate = () => {
             if (!needsMouseUpdate) return
@@ -253,6 +232,7 @@ export function DocumentsSection() {
             const mx = mouseRef.current.x
             const my = mouseRef.current.y
 
+            // Throttle to every 2 frames
             if (frameRef.current % 2 === 0 && mx !== -9999) {
                 for (let i = 0; i < particles.length; i++) {
                     const p = particles[i]
@@ -286,136 +266,145 @@ export function DocumentsSection() {
             needsMouseUpdate = false
         }
 
-        if (!isMobile) {
-            const handleMouseMove = (e: MouseEvent) => {
-                const rect = canvas.getBoundingClientRect()
-                mouseX = e.clientX - rect.left
-                mouseY = e.clientY - rect.top
-                needsMouseUpdate = true
-            }
-
-            const handleMouseLeave = () => {
-                mouseX = -9999
-                mouseY = -9999
-                mouseRef.current.x = -9999
-                mouseRef.current.y = -9999
-                needsMouseUpdate = false
-                for (let i = 0; i < particles.length; i++) {
-                    const p = particles[i]
-                    if (p.attracted && !p.glowing) {
-                        p.attracted = false
-                        gsap.to(p, {
-                            x: p.originX,
-                            y: p.originY,
-                            duration: 0.6,
-                            ease: "elastic.out(1, 0.4)",
-                            overwrite: true,
-                        })
-                    }
-                }
-            }
-
-            canvas.addEventListener("mousemove", handleMouseMove)
-            canvas.addEventListener("mouseleave", handleMouseLeave)
-
-                // Store for cleanup
-                ; (canvas as any)._mmove = handleMouseMove
-                ; (canvas as any)._mleave = handleMouseLeave
-
-            cardRefs.current.forEach((card, idx) => {
-                if (!card) return
-                let isHovered = false
-
-                const onEnter = () => {
-                    if (isHovered) return
-                    isHovered = true
-                    updateCardRects()
-                    const r = cardRects[idx]
-                    if (!r) return
-
-                    activeGlowColors.current[idx] = documents[idx].glowColor
-                    activeGlowEdgeColors.current[idx] = documents[idx].glowColorEdge
-                    cardReadyCount[idx] = 0
-
-                    for (let i = 0; i < particles.length; i++) {
-                        const p = particles[i]
-                        if (p.glowing) continue
-                        const pos = borderPoint(r)
-                        p.glowing = true
-                        p.cardIndex = idx
-                        p.glowReady = false
-
-                        gsap.to(p, {
-                            x: pos.x,
-                            y: pos.y,
-                            opacity: 1,
-                            duration: 1.5 + Math.random() * 1.5,
-                            ease: "power2.inOut",
-                            overwrite: true,
-                            onComplete: () => {
-                                p.glowReady = true
-                                cardReadyCount[idx]++
-                                if (!glowState.current[idx] && cardReadyCount[idx] >= 10) {
-                                    glowState.current[idx] = true
-                                    setGlowFlags(prev => {
-                                        const next = [...prev]
-                                        next[idx] = true
-                                        return next
-                                    })
-                                }
-                            }
-                        })
-                    }
-                }
-
-                const onLeave = () => {
-                    if (!isHovered) return
-                    isHovered = false
-                    delete activeGlowColors.current[idx]
-                    delete activeGlowEdgeColors.current[idx]
-                    cardReadyCount[idx] = 0
-
-                    if (glowState.current[idx]) {
-                        glowState.current[idx] = false
-                        setGlowFlags(prev => {
-                            const next = [...prev]
-                            next[idx] = false
-                            return next
-                        })
-                    }
-
-                    for (let i = 0; i < particles.length; i++) {
-                        const p = particles[i]
-                        if (!p.glowing || p.cardIndex !== idx) continue
-                        p.glowing = false
-                        p.attracted = false
-                        p.glowReady = false
-                        p.cardIndex = undefined
-                        gsap.to(p, {
-                            x: p.originX,
-                            y: p.originY,
-                            opacity: p.baseOpacity,
-                            duration: 1.8 + Math.random() * 1.2,
-                            ease: "power2.inOut",
-                            overwrite: true,
-                        })
-                    }
-                }
-
-                card.addEventListener("mouseenter", onEnter)
-                card.addEventListener("mouseleave", onLeave)
-                enterHandlers.push(onEnter)
-                leaveHandlers.push(onLeave)
-            })
+        const handleMouseMove = (e: MouseEvent) => {
+            const rect = canvas.getBoundingClientRect()
+            mouseX = e.clientX - rect.left
+            mouseY = e.clientY - rect.top
+            needsMouseUpdate = true
         }
 
-        const syncOffscreen = () => { }
+        const handleMouseLeave = () => {
+            mouseX = -9999
+            mouseY = -9999
+            mouseRef.current.x = -9999
+            mouseRef.current.y = -9999
+            needsMouseUpdate = false
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i]
+                if (p.attracted && !p.glowing) {
+                    p.attracted = false
+                    gsap.to(p, {
+                        x: p.originX,
+                        y: p.originY,
+                        duration: 0.6,
+                        ease: "elastic.out(1, 0.4)",
+                        overwrite: true,
+                    })
+                }
+            }
+        }
+
+        canvas.addEventListener("mousemove", handleMouseMove)
+        canvas.addEventListener("mouseleave", handleMouseLeave)
+
+        const enterHandlers: (() => void)[] = []
+        const leaveHandlers: (() => void)[] = []
+
+        // Track how many particles per card have settled (glowReady)
+        const cardReadyCount = new Array(CARD_COUNT).fill(0)
+
+        cardRefs.current.forEach((card, idx) => {
+            if (!card) return
+            let isHovered = false
+
+            const onEnter = () => {
+                if (isHovered) return
+                isHovered = true
+                updateCardRects()
+                const r = cardRects[idx]
+                if (!r) return
+
+                activeGlowColors.current[idx] = documents[idx].glowColor
+                activeGlowEdgeColors.current[idx] = documents[idx].glowColorEdge
+                cardReadyCount[idx] = 0
+
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i]
+                    if (p.glowing) continue
+                    const pos = borderPoint(r)
+                    p.glowing = true
+                    p.cardIndex = idx
+                    p.glowReady = false
+
+                    gsap.to(p, {
+                        x: pos.x,
+                        y: pos.y,
+                        opacity: 1,
+                        duration: 1.5 + Math.random() * 1.5,
+                        ease: "power2.inOut",
+                        overwrite: true,
+                        onComplete: () => {
+                            p.glowReady = true
+                            cardReadyCount[idx]++
+                            // Only trigger state update once when enough particles settle
+                            if (!glowState.current[idx] && cardReadyCount[idx] >= 10) {
+                                glowState.current[idx] = true
+                                setGlowFlags(prev => {
+                                    const next = [...prev]
+                                    next[idx] = true
+                                    return next
+                                })
+                            }
+                        }
+                    })
+                }
+            }
+
+            const onLeave = () => {
+                if (!isHovered) return
+                isHovered = false
+                delete activeGlowColors.current[idx]
+                delete activeGlowEdgeColors.current[idx]
+                cardReadyCount[idx] = 0
+
+                // Batch the glow state update — single setState call
+                if (glowState.current[idx]) {
+                    glowState.current[idx] = false
+                    setGlowFlags(prev => {
+                        const next = [...prev]
+                        next[idx] = false
+                        return next
+                    })
+                }
+
+                for (let i = 0; i < particles.length; i++) {
+                    const p = particles[i]
+                    if (!p.glowing || p.cardIndex !== idx) continue
+                    p.glowing = false
+                    p.attracted = false
+                    p.glowReady = false
+                    p.cardIndex = undefined
+                    gsap.to(p, {
+                        x: p.originX,
+                        y: p.originY,
+                        opacity: p.baseOpacity,
+                        duration: 1.8 + Math.random() * 1.2,
+                        ease: "power2.inOut",
+                        overwrite: true,
+                    })
+                }
+            }
+
+            card.addEventListener("mouseenter", onEnter)
+            card.addEventListener("mouseleave", onLeave)
+            enterHandlers.push(onEnter)
+            leaveHandlers.push(onLeave)
+        })
+
+        // ─── Offscreen buffer for particle rendering (reduces main canvas redraws) ───
+        const offscreen = document.createElement("canvas")
+        const offCtx = offscreen.getContext("2d")!
+
+        const syncOffscreen = () => {
+            offscreen.width = canvas.width
+            offscreen.height = canvas.height
+        }
+        syncOffscreen()
         window.addEventListener("resize", syncOffscreen)
 
         const draw = () => {
             frameRef.current++
-
-            if (!isMobile) processMouseUpdate()
+            processMouseUpdate()
 
             if (document.hidden) {
                 animationId = requestAnimationFrame(draw)
@@ -424,19 +413,17 @@ export function DocumentsSection() {
 
             ctx.clearRect(0, 0, width, height)
 
-            if (!isMobile) {
-                // ─── Desktop: clip out card areas so particles don't draw over cards ───
-                ctx.save()
-                ctx.beginPath()
-                ctx.rect(0, 0, width, height)
-                for (let i = 0; i < cardRects.length; i++) {
-                    const r = cardRects[i]
-                    if (r) ctx.rect(r.left, r.top, r.width, r.height)
-                }
-                ctx.clip("evenodd")
+            // ─── Clip out card areas ───
+            ctx.save()
+            ctx.beginPath()
+            ctx.rect(0, 0, width, height)
+            for (let i = 0; i < cardRects.length; i++) {
+                const r = cardRects[i]
+                if (r) ctx.rect(r.left, r.top, r.width, r.height)
             }
+            ctx.clip("evenodd")
 
-            // ─── Draw particles (both mobile and desktop) ───
+            // ─── Draw particles ───
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i]
                 if (!isVisible(p, width, height)) continue
@@ -446,7 +433,6 @@ export function DocumentsSection() {
                 const alpha = Math.max(0, Math.min(1, p.opacity + twinkle))
                 if (alpha < 0.02) continue
 
-                // Float — always active on mobile (no attracted/glowing states)
                 let offsetY = 0
                 if (!p.attracted && !p.glowing) {
                     offsetY = Math.sin(t * FLOAT_FREQUENCY + p.phase) * FLOAT_AMPLITUDE
@@ -455,7 +441,8 @@ export function DocumentsSection() {
                 const drawX = p.x
                 const drawY = p.y + offsetY
 
-                if (!isMobile && p.glowing) {
+                if (p.glowing) {
+                    // Simple bright dot — no expensive radial gradient per particle
                     const edgeColor = p.cardIndex !== undefined
                         ? activeGlowEdgeColors.current[p.cardIndex] || "255,255,255"
                         : "255,255,255"
@@ -471,37 +458,40 @@ export function DocumentsSection() {
                 }
             }
 
-            if (!isMobile) {
+            ctx.restore()
+
+            // ─── Card edge glow pass ───
+            // Draw a tight glowing border stroke around each active card rect
+            // This runs directly on the main canvas OUTSIDE the clip region
+            for (let idx = 0; idx < CARD_COUNT; idx++) {
+                if (!glowState.current[idx]) continue
+                const r = cardRects[idx]
+                if (!r) continue
+
+                const edgeColor = activeGlowEdgeColors.current[idx]
+                if (!edgeColor) continue
+
+                // Outer soft halo (wide, low opacity)
+                ctx.save()
+                ctx.shadowBlur = 28
+                ctx.shadowColor = `rgba(${edgeColor}, 0.5)`
+                ctx.strokeStyle = `rgba(${edgeColor}, 0.15)`
+                ctx.lineWidth = 14
+                ctx.beginPath()
+                ctx.roundRect(r.left, r.top, r.width, r.height, 16)
+                ctx.stroke()
                 ctx.restore()
 
-                // ─── Desktop only: card edge glow pass ───
-                for (let idx = 0; idx < CARD_COUNT; idx++) {
-                    if (!glowState.current[idx]) continue
-                    const r = cardRects[idx]
-                    if (!r) continue
-                    const edgeColor = activeGlowEdgeColors.current[idx]
-                    if (!edgeColor) continue
-
-                    ctx.save()
-                    ctx.shadowBlur = 28
-                    ctx.shadowColor = `rgba(${edgeColor}, 0.5)`
-                    ctx.strokeStyle = `rgba(${edgeColor}, 0.15)`
-                    ctx.lineWidth = 14
-                    ctx.beginPath()
-                    ctx.roundRect(r.left, r.top, r.width, r.height, 16)
-                    ctx.stroke()
-                    ctx.restore()
-
-                    ctx.save()
-                    ctx.shadowBlur = 10
-                    ctx.shadowColor = `rgba(${edgeColor}, 0.9)`
-                    ctx.strokeStyle = `rgba(${edgeColor}, 0.7)`
-                    ctx.lineWidth = 1.5
-                    ctx.beginPath()
-                    ctx.roundRect(r.left, r.top, r.width, r.height, 16)
-                    ctx.stroke()
-                    ctx.restore()
-                }
+                // Inner crisp edge glow (tight, high opacity)
+                ctx.save()
+                ctx.shadowBlur = 10
+                ctx.shadowColor = `rgba(${edgeColor}, 0.9)`
+                ctx.strokeStyle = `rgba(${edgeColor}, 0.7)`
+                ctx.lineWidth = 1.5
+                ctx.beginPath()
+                ctx.roundRect(r.left, r.top, r.width, r.height, 16)
+                ctx.stroke()
+                ctx.restore()
             }
 
             t++
@@ -514,131 +504,24 @@ export function DocumentsSection() {
             cancelAnimationFrame(animationId)
             window.removeEventListener("resize", resize)
             window.removeEventListener("resize", syncOffscreen)
-            if (!isMobile) {
-                const mmove = (canvas as any)._mmove
-                const mleave = (canvas as any)._mleave
-                if (mmove) canvas.removeEventListener("mousemove", mmove)
-                if (mleave) canvas.removeEventListener("mouseleave", mleave)
-                cardRefs.current.forEach((card, i) => {
-                    if (!card || !enterHandlers[i]) return
-                    card.removeEventListener("mouseenter", enterHandlers[i])
-                    card.removeEventListener("mouseleave", leaveHandlers[i])
-                })
-            }
+            canvas.removeEventListener("mousemove", handleMouseMove)
+            canvas.removeEventListener("mouseleave", handleMouseLeave)
+            cardRefs.current.forEach((card, i) => {
+                if (!card) return
+                card.removeEventListener("mouseenter", enterHandlers[i])
+                card.removeEventListener("mouseleave", leaveHandlers[i])
+            })
             gsap.killTweensOf(particles)
         }
-    }, [isMobile])
-
-    // ─── Shared card inner content ───
-    const CardInner = ({ doc, i }: { doc: typeof documents[0]; i: number }) => (
-        <>
-            {/* Glow overlay — desktop only, invisible on mobile */}
-            {!isMobile && (
-                <div
-                    className={cn(
-                        "absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500 z-19",
-                        glowFlags[i] ? "opacity-100" : "opacity-0"
-                    )}
-                    style={{
-                        boxShadow: `
-                        0 0 0 1.5px rgba(${doc.glowColorEdge}, 0.7),
-                        0 0 16px 6px  rgba(${doc.glowColorEdge}, 0.45),
-                        0 0 32px 12px rgba(${doc.glowColorEdge}, 0.25),
-                        0 0 56px 20px rgba(${doc.glowColorEdge}, 0.1)
-                    `,
-                    }}
-                />
-            )}
-
-            <a
-                href={doc.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                    "relative w-full h-full border-2 rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-center",
-                    "shadow-lg transition-all duration-300 overflow-hidden",
-                    // Hover shadow only on desktop (touch has no hover)
-                    "md:hover:shadow-2xl",
-                    // Mobile optimizations
-                    "active:scale-[0.98] sm:active:scale-100", // Subtle tap feedback on mobile
-                    doc.color
-                )}
-            >
-                {/* Decorative corners - scaled for mobile */}
-                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-2 h-2 sm:w-3 sm:h-3 border-t-2 border-r-2 border-current opacity-30 rounded-tr-sm pointer-events-none" />
-                <div className="absolute top-2 left-2 sm:top-3 sm:left-3 w-2 h-2 sm:w-3 sm:h-3 border-t-2 border-l-2 border-current opacity-30 rounded-tl-sm pointer-events-none" />
-                <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-2 h-2 sm:w-3 sm:h-3 border-b-2 border-r-2 border-current opacity-30 rounded-br-sm pointer-events-none" />
-                <div className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 w-2 h-2 sm:w-3 sm:h-3 border-b-2 border-l-2 border-current opacity-30 rounded-bl-sm pointer-events-none" />
-
-                {/* Dots - adjusted for mobile */}
-                <div className="absolute top-4 right-4 sm:top-6 sm:right-6 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
-                <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 w-1 h-1 sm:w-1.5 sm:h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
-
-                <div className="relative z-10 text-center">
-                    {/* Icon - responsive sizing */}
-                    <div className={cn(
-                        "mb-3 sm:mb-4 transition-transform duration-300",
-                        "group-hover:scale-110",
-                        // Mobile: slightly smaller icon
-                        "scale-90 sm:scale-100",
-                        doc.iconColor
-                    )}>
-                        {doc.icon}
-                    </div>
-
-                    {/* Title - responsive text sizes */}
-                    <h3 className={cn(
-                        "font-bold text-gray-800 mb-1",
-                        "text-lg sm:text-xl", // Smaller on mobile
-                        "leading-tight sm:leading-normal"
-                    )}>
-                        {doc.title}
-                    </h3>
-
-                    {/* Description - responsive text */}
-                    <p className={cn(
-                        "text-gray-600 mb-3 sm:mb-4",
-                        "text-xs sm:text-sm", // Smaller on mobile
-                        "px-2 sm:px-0", // Add some horizontal padding on mobile
-                        "line-clamp-2 sm:line-clamp-none" // Limit lines on mobile if needed
-                    )}>
-                        {doc.description}
-                    </p>
-
-                    {/* CTA Button - touch-friendly */}
-                    <div className={cn(
-                        "inline-flex items-center gap-1.5 sm:gap-2 text-sm font-medium",
-                        "text-gray-700 group-hover:text-gray-900",
-                        // Better touch target on mobile
-                        "py-2 px-3 sm:py-0 sm:px-0",
-                        "rounded-lg sm:rounded-none",
-                        "active:bg-gray-100 sm:active:bg-transparent" // Visual feedback on tap
-                    )}>
-                        <span className="text-xs sm:text-sm">Explore</span>
-                        <svg
-                            className={cn(
-                                "w-3 h-3 sm:w-4 sm:h-4",
-                                "transform transition-transform duration-300",
-                                "group-hover:translate-x-1"
-                            )}
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
-                </div>
-            </a>
-        </>
-    );
+    }, [])
 
     return (
-        <section className="relative w-full bg-black overflow-hidden flex items-center justify-center min-h-screen">
+        <section className="relative w-full h-screen bg-[#0a0a0a] overflow-hidden flex items-center justify-center ">
+            {/* Canvas sits behind everything */}
             <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0" />
 
-            {/* ── DESKTOP: scattered absolute layout ── */}
-            <div className="hidden md:block relative w-full max-w-7xl mx-auto h-150">
+            {/* Desktop Layout (UNCHANGED) */}
+            <div className="hidden md:block card-grid relative w-full max-w-7xl mx-auto h-[600px]">
                 {documents.map((doc, i) => (
                     <div
                         key={doc.id}
@@ -651,35 +534,134 @@ export function DocumentsSection() {
                             "hover:scale-105 hover:rotate-0 cursor-pointer group",
                         )}
                     >
-                        <CardInner doc={doc} i={i} />
+                        {/*
+                         * CSS box-shadow glow — tied to the card element itself so it
+                         * ALWAYS moves with the card. z-index is inherited from parent.
+                         * glowFlags[i] drives the CSS class, not glowState.current.
+                         */}
+                        <div
+                            className={cn(
+                                "absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500",
+                                // z-[19] keeps glow above resting cards (z-10) but below hovered card (z-20)
+                                "z-[19]",
+                                glowFlags[i] ? "opacity-100" : "opacity-0"
+                            )}
+                            style={{
+                                boxShadow: `
+                                    0 0 0 1.5px rgba(${doc.glowColorEdge}, 0.7),
+                                    0 0 16px 6px  rgba(${doc.glowColorEdge}, 0.45),
+                                    0 0 32px 12px rgba(${doc.glowColorEdge}, 0.25),
+                                    0 0 56px 20px rgba(${doc.glowColorEdge}, 0.1)
+                                `,
+                            }}
+                        />
+
+                        <a
+                            href={doc.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cn(
+                                "relative w-full h-full border-2 rounded-2xl p-6 flex flex-col items-center justify-center",
+                                "shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden",
+                                doc.color
+                            )}
+                        >
+                            {/* Corner decorations — these live inside the <a> so they
+                                always move with the card. No separate float animation. */}
+                            <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-current opacity-30 rounded-tr-sm pointer-events-none" />
+                            <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-current opacity-30 rounded-tl-sm pointer-events-none" />
+                            <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-current opacity-30 rounded-br-sm pointer-events-none" />
+                            <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-current opacity-30 rounded-bl-sm pointer-events-none" />
+                            <div className="absolute top-6 right-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
+                            <div className="absolute bottom-6 left-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
+
+                            {/* Card content */}
+                            <div className="relative z-10 text-center">
+                                <div className={cn("mb-4 transition-transform duration-300 group-hover:scale-110", doc.iconColor)}>
+                                    {doc.icon}
+                                </div>
+                                <h3 className="text-2xl font-bold text-gray-800 mb-2">{doc.title}</h3>
+                                <p className="text-gray-600 text-sm mb-4">{doc.description}</p>
+                                <div className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                                    <span>Explore</span>
+                                    <svg
+                                        className="w-4 h-4 transform transition-transform duration-300 group-hover:translate-x-1"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
                     </div>
                 ))}
             </div>
 
-            {/* ── MOBILE: 2-column grid, rotations preserved as inline style ── */}
-            <div className="md:hidden relative z-10 w-full px-4 py-10">
-                <div className="mobile-card-grid grid grid-cols-2 gap-4">
+            {/* Mobile Layout (GRID) */}
+            <div className="lg:hidden relative z-10 w-full px-4 py-10">
+                <div className="grid grid-cols-2 gap-4">
                     {documents.map((doc, i) => (
                         <div
                             key={doc.id}
-                            ref={(el) => { cardRefs.current[i] = el }}
+                            // ref={(el) => { cardRefs.current[i] = el }}
                             className={cn(
-                                "card-item relative h-40 group cursor-pointer",
-                                "transition-transform duration-300 active:scale-95",
+                                "relative h-40 group cursor-pointer",
+                                "transition-transform duration-300 active:scale-95"
                             )}
-                            style={{
-                                // Preserve the playful tilt on mobile via inline style
-                                // so it doesn't fight with the CSS grid layout
-                                transform: `rotate(${MOBILE_ROTATIONS[i]}deg)`,
-                            }}
                         >
-                            <CardInner doc={doc} i={i} />
+                            {/* SAME CARD CONTENT */}
+                            <a
+                                href={doc.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={cn(
+                                    "relative w-full h-full border-2 rounded-2xl p-6 flex flex-col items-center justify-center",
+                                    "shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden",
+                                    doc.color
+                                )}
+                            >
+                                {/* Corner decorations — these live inside the <a> so they
+                                always move with the card. No separate float animation. */}
+                                <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-current opacity-30 rounded-tr-sm pointer-events-none" />
+                                <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-current opacity-30 rounded-tl-sm pointer-events-none" />
+                                <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-current opacity-30 rounded-br-sm pointer-events-none" />
+                                <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-current opacity-30 rounded-bl-sm pointer-events-none" />
+                                <div className="absolute top-6 right-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
+                                <div className="absolute bottom-6 left-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
+
+                                {/* Card content */}
+                                <div className="relative z-10 text-center">
+                                    <div className={cn("mb-4 transition-transform duration-300 group-hover:scale-110", doc.iconColor)}>
+                                        {doc.icon}
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-gray-800 mb-2">{doc.title}</h3>
+                                    <p className="text-gray-600 text-sm mb-4">{doc.description}</p>
+                                    <div className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                                        <span>Explore</span>
+                                        <svg
+                                            className="w-4 h-4 transform transition-transform duration-300 group-hover:translate-x-1"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
                     ))}
                 </div>
             </div>
 
             <style jsx>{`
+                /*
+                 * Uses the 'float' keyframe defined in globals.css.
+                 * Targets only direct .card-item children of .card-grid so
+                 * nested absolute elements (corner decorations etc.) are unaffected.
+                 */
                 .card-grid > .card-item {
                     animation: float 6s ease-in-out infinite;
                 }
@@ -689,18 +671,11 @@ export function DocumentsSection() {
                 .card-grid > .card-item:nth-child(4) { animation-delay: -1s; animation-duration: 8s; }
                 .card-grid > .card-item:nth-child(5) { animation-delay: -3s; animation-duration: 6s; }
                 .card-grid > .card-item:nth-child(6) { animation-delay: -5s; animation-duration: 7s; }
-
+ 
+                /* Pause float on hover so it doesn't fight the scale/rotate transition */
                 .card-grid > .card-item:hover {
                     animation-play-state: paused;
                 }
-
-                /* Mobile float — scoped to the grid wrapper, not card-grid */
-                .mobile-card-grid .card-item:nth-child(1) { animation: float 6s ease-in-out infinite 0s; }
-                .mobile-card-grid .card-item:nth-child(2) { animation: float 7s ease-in-out infinite -2s; }
-                .mobile-card-grid .card-item:nth-child(3) { animation: float 5s ease-in-out infinite -4s; }
-                .mobile-card-grid .card-item:nth-child(4) { animation: float 8s ease-in-out infinite -1s; }
-                .mobile-card-grid .card-item:nth-child(5) { animation: float 6s ease-in-out infinite -3s; }
-                .mobile-card-grid .card-item:nth-child(6) { animation: float 7s ease-in-out infinite -5s; }
             `}</style>
         </section>
     )
