@@ -519,7 +519,21 @@ export function DocumentsSection() {
         <section className="relative w-full h-screen bg-[#0a0a0a] overflow-hidden flex items-center justify-center ">
             {/* Canvas sits behind everything */}
             <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0" />
+            {/* Heading */}
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 text-center pointer-events-none">
+                <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-3 relative">
+                    <span className="bg-linear-to-r from-white via-white to-white/70 bg-clip-text text-transparent">
+                        Where I Build & Share
+                    </span>
 
+                    {/* subtle glow */}
+                    <span className="absolute inset-0 blur-2xl opacity-30 bg-white/20 rounded-full"></span>
+                </h2>
+
+                <p className="text-sm md:text-base text-white/60 tracking-[0.3em] uppercase">
+                    Code. Content. Connections.
+                </p>
+            </div>
             {/* Desktop Layout (UNCHANGED) */}
             <div className="hidden md:block card-grid relative w-full max-w-7xl mx-auto h-[600px]">
                 {documents.map((doc, i) => (

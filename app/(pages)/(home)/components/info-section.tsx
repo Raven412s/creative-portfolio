@@ -2,13 +2,12 @@
 "use client"
 import { AsciiMorph } from '@/components/ascii-morph'
 import { useCursorElement } from '@/components/cursor/claude-cursor'
+import ClipText from '@/components/text-animations/scroll-based-reveal'
+import SplitText from '@/components/text-animations/split-text'
 import { Separator } from '@/components/ui/separator'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRef, useEffect } from 'react'
 import { LeetCodeCard } from './leetcode-card'
-import ClipText from '@/components/text-animations/scroll-based-reveal'
-import SplitText from '@/components/text-animations/split-text'
 
 function ProjectLink({ project }: { project: typeof projects[number] }) {
   const h = useCursorElement({
@@ -158,7 +157,7 @@ const projects = [
 ]
 
 export function InfoSection() {
-  const skillsRef = useRef<HTMLDivElement>(null)
+  
 
   const skills = [
     "React", "Next.js", "TypeScript", "Node.js", "Express", "MongoDB", "PostgreSQL",
@@ -248,10 +247,10 @@ export function InfoSection() {
             <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 font-mono">
               Toolkit
             </span>
-            <div className="flex-1 h-px bg-gradient-to-r from-white/10 to-transparent" />
+            <div className="flex-1 h-px bg-linear-to-r from-white/10 to-transparent" />
           </div>
           <div className="overflow-hidden cursor-pointer">
-            <div className="flex gap-3 whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
+            <div className="flex gap-3 whitespace-nowrap animate-marquee group-hover:paused">
               {marqueeSkills.map((skill, idx) => (
                 <span
                   key={idx}
@@ -323,7 +322,7 @@ export function InfoSection() {
             <div className="flex gap-10 items-start">
 
               {/* ASCII Morph */}
-              <div className="relative group max-h-[40vh] flex flex-2 items-center justify-center w-[120px] shrink-0">
+              <div className="relative group max-h-[40vh] flex flex-2 items-center justify-center w-30 shrink-0">
                 <div className="relative transform transition-transform scale-[0.7] duration-300 group-hover:scale-[.72] flex items-center justify-center">
                   <AsciiMorph
                     files={[
@@ -356,7 +355,7 @@ export function InfoSection() {
               </div>
 
               <div className="overflow-hidden cursor-pointer">
-                <div className="flex gap-3 whitespace-nowrap animate-marquee group-hover:[animation-play-state:paused]">
+                <div className="flex gap-3 whitespace-nowrap animate-marquee group-hover:paused">
                   {marqueeSkills.map((skill, idx) => (
                     <span
                       key={idx}

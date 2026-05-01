@@ -34,11 +34,11 @@ export default function StaggerText({
       containerRef.current.querySelectorAll<HTMLSpanElement>(".letter-bottom");
 
 
-    gsap.killTweensOf([topLetters, bottomLetters]); 
-    
+    gsap.killTweensOf([topLetters, bottomLetters]);
+
     // Top layer flies out upward
     gsap.to(topLetters, {
-      yPercent: -100,
+      yPercent: -120,
       duration: 0.5,
       ease: "power4.inOut",
       stagger: { each: 0.025 },
@@ -62,8 +62,8 @@ export default function StaggerText({
       containerRef.current.querySelectorAll<HTMLSpanElement>(".letter-bottom");
 
 
-    gsap.killTweensOf([topLetters, bottomLetters]); 
-    
+    gsap.killTweensOf([topLetters, bottomLetters]);
+
     // Top layer returns to rest
     gsap.to(topLetters, {
       yPercent: 0,
@@ -86,10 +86,9 @@ export default function StaggerText({
       ref={containerRef}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
-      className={`relative cursor-pointer inline-flex ${className}`}
+      className={`relative cursor-pointer inline-flex whitespace-nowrap ${className}`}
       style={{ lineHeight: 1 }}
     >
-      {/* Yeh wrapper clip karega */}
       <div className="overflow-hidden">
         <div aria-hidden="true" className="flex">
           {letters.map((letter, i) => (
@@ -104,9 +103,9 @@ export default function StaggerText({
         </div>
       </div>
 
-      {/* Bottom layer — absolute, apna overflow-hidden wrapper hai */}
-      <div className="overflow-hidden absolute inset-0">
-        <div className="flex h-full" style={{ color: hoverColor }}>
+      {/* Bottom layer — sized to match top layer naturally */}
+      <div className="overflow-hidden absolute inset-0 flex items-center">
+        <div className="flex" style={{ color: hoverColor }}>
           {letters.map((letter, i) => (
             <span
               key={`bottom-${i}`}
@@ -121,5 +120,5 @@ export default function StaggerText({
 
       <span className="sr-only">{text}</span>
     </div>
-  );
+  )
 }
