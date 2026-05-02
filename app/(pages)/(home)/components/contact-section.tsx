@@ -5,7 +5,7 @@ export function ContactSection() {
     return (
         <section className="min-h-screen bg-[#0a0a0a] flex items-center px-[clamp(1.5rem,6vw,6rem)] py-[clamp(4rem,8vw,8rem)]">
             <div className="w-full max-w-275 mx-auto">
-                <div className="grid grid-cols-[1fr_1.4fr] gap-[clamp(3rem,6vw,7rem)] items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-[clamp(3rem,6vw,7rem)] items-start">
 
                     {/* Left — typography column */}
                     <div className="pt-2">

@@ -29,7 +29,7 @@ const STACK = [
     { label: "Next.js",          color: "#fff" },
     { label: "TypeScript",        color: "#3B82F6" },
     { label: "Tailwind",          color: "#38BDF8" },
-    { label: "GSAP",              color: "#1cf3a1" },
+    { label: "GSAP",              color: "#88CC00" },
     { label: "Framer Motion",     color: "#BB55FF" },
     { label: "Node.js",           color: "#68A063" },
     { label: "Prisma",            color: "#5A67D8" },
@@ -86,8 +86,7 @@ const MenuToggleContent = ({ isOpen, h }: MenuToggleContentProps) => (
 // ── Sub-component: Blinking cursor ────────────────────────────────────────────
 const BlinkCursor = () => (
     <motion.span
-        className="inline-block w-0.5 h-[1em] ml-0.5 align-middle"
-        style={{ backgroundColor: '#1cf3a1' }}
+        className="inline-block w-0.5 h-[1em] bg-emerald-400 ml-0.5 align-middle"
         animate={{ opacity: [1, 0] }}
         transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
     />
@@ -111,7 +110,7 @@ const TerminalBlock = () => {
             <div className="flex items-center gap-1.5 px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)' }}>
                 <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
                 <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#1cf3a1' }} />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
                 <span className="ml-2 text-white/20 text-[10px] tracking-widest uppercase">terminal</span>
             </div>
 
@@ -120,7 +119,7 @@ const TerminalBlock = () => {
                 {lines.map((l, i) => (
                     <div key={i}>
                         <div className="flex items-center gap-1.5">
-                            <span style={{ color: '#1cf3a1' }}>❯</span>
+                            <span className="text-emerald-400">❯</span>
                             <span className="text-white/50">{l.prompt}</span>
                             <span className="text-white/90">{l.cmd}</span>
                         </div>
@@ -129,7 +128,7 @@ const TerminalBlock = () => {
                 ))}
                 {/* active line */}
                 <div className="flex items-center gap-1.5 mt-1">
-                    <span style={{ color: '#1cf3a1' }}>❯</span>
+                    <span className="text-emerald-400">❯</span>
                     <span className="text-white/50">~</span>
                     <BlinkCursor />
                 </div>
@@ -161,12 +160,11 @@ const StackPills = () => (
 const AvailBadge = () => (
     <div className="flex items-center gap-2">
         <motion.span
-            className="w-2 h-2 rounded-full"
-            style={{ background: '#1cf3a1' }}
+            className="w-2 h-2 rounded-full bg-emerald-400"
             animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
             transition={{ duration: 1.8, repeat: Infinity }}
         />
-        <span className="text-xs font-mono tracking-widest uppercase" style={{ color: '#1cf3a1' }}>
+        <span className="text-emerald-400 text-xs font-mono tracking-widest uppercase">
             Available for hire
         </span>
     </div>
@@ -257,6 +255,7 @@ const Nav = () => {
               .to(navRef.current,         { width: '95vw', duration: 0.5, ease: 'power3.inOut' }, 0.3)
               .set(allLinesRef.current,   { y: '100%' }, 0.5)
         }
+    
     }, [isOpen, activeIndex])
 
     // ── Cursor ─────────────────────────────────────────────────────────────────
@@ -269,12 +268,12 @@ const Nav = () => {
     return (
         <>
             {/* Invisible nav — GSAP width target */}
-            <nav ref={navRef} className="fixed top-0 left-1/2 -translate-x-1/2 w-[95vw] pointer-events-none" aria-hidden="true" />
+            {/* <nav ref={navRef} className="fixed top-0 left-1/2 -translate-x-1/2 w-[95vw] pointer-events-none" aria-hidden="true" /> */}
 
             {/* Dual logo bars */}
             <div
                 aria-label="Site logo"
-                className="fixed top-0 w-full flex justify-between mix-blend-difference z-1000 mt-2 lg:mt-[0.9vw] pointer-events-none"
+                className="fixed top-0 w-full  flex justify-between mix-blend-difference z-1000 mt-2 lg:mt-[0.9vw] pointer-events-none"
             >
                 {[0, 1].map(i => (
                     <div key={i} className={isTouchDevice ? '' : 'pointer-events-auto'}>
@@ -327,7 +326,7 @@ const Nav = () => {
             <div
                 ref={menuRef}
                 style={{ ...glassStyle, clipPath: 'inset(0% 0% 100% 0%)' }}
-                className="fixed top-[calc(2vw+5%)] left-1/2 -translate-x-1/2 w-[90vw] border border-white/10 rounded-2xl z-40 overflow-hidden"
+                className="fixed top-[calc(2vw+5%)] left-1/2 -translate-x-1/2 max-w-[90vw] w-full border border-white/10 rounded-2xl z-40"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Navigation menu"
@@ -374,8 +373,8 @@ const Nav = () => {
                                     href={link.href}
                                     {...(isTouchDevice ? {} : h_link)}
                                     className={`
-                                        font-semibold tracking-tight leading-none transition-colors duration-200
-                                        text-[clamp(1.6rem,4vw,3rem)] py-1.5
+                                        font-semibold tracking-tight leading-none py-1.5 transition-colors duration-200
+                                        text-[clamp(1.6rem,4vw,3rem)]
                                         ${pathname === link.href ? 'text-emerald-400' : 'text-white/85 hover:text-white'}
                                     `}
                                     onClick={() => setIsOpen(false)}

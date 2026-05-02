@@ -99,7 +99,7 @@ hover:text-lime-accent hover:border-white/50 hover:bg-white/30"
             <FieldGroup className="gap-0">
 
                 {/* Name + Email — side by side */}
-                <div className="grid grid-cols-2">
+                <div className="grid grid-cols-1 md:grid-cols-2">
                     {/* Name */}
                     <Controller
                         name="name"
@@ -139,7 +139,7 @@ hover:text-lime-accent hover:border-white/50 hover:bg-white/30"
                         render={({ field, fieldState }) => (
                             <Field
                                 data-invalid={fieldState.invalid}
-                                className={`${fieldClass} border-l-0`}
+                                className={`${fieldClass} lg:border-l-0`}
                             >
                                 <FieldLabel
                                     htmlFor={field.name}
