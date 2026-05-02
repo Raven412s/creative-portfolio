@@ -176,7 +176,7 @@ export function InfoSection() {
         <Separator className='bg-white/10' />
 
         {/* Quote */}
-        <p className='text-right text-xl text-slate-300/40 italic font-thin'>
+        <p className='text-right text-xl bg-linear-to-r from-slate-400/30 via-slate-200/40 to-lime-accent bg-clip-text text-transparent'>
           &quot;Purpose-driven builds that combine design clarity with technical excellence.&quot;
         </p>
 
@@ -300,7 +300,7 @@ export function InfoSection() {
 
             {/* RIGHT */}
             <div className="flex flex-col justify-between items-end h-full py-12">
-              <p className='max-w-lg text-right text-3xl text-slate-300/40 italic font-thin'>
+              <p className='max-w-[600px] text-right text-3xl bg-linear-to-r from-slate-400/30 via-slate-200/40 to-lime-accent bg-clip-text text-transparent'>
                 &quot;Purpose-driven builds that combine design clarity with technical excellence.&quot;
               </p>
               <ClipText

@@ -9,7 +9,7 @@ import { ContactSection } from "../components/contact-section";
 
 export function HomeView() {
     return (
-        <main className="w-full h-full">
+        <main className="w-full h-full pointer-events-auto">
             <HeroSection />
             <AboutSection />
             <InfoSection />

@@ -268,7 +268,7 @@ const Nav = () => {
     return (
         <>
             {/* Invisible nav — GSAP width target */}
-            {/* <nav ref={navRef} className="fixed top-0 left-1/2 -translate-x-1/2 w-[95vw] pointer-events-none" aria-hidden="true" /> */}
+            <nav ref={navRef} className="fixed top-0 left-1/2 -translate-x-1/2 w-[95vw] pointer-events-none" aria-hidden="true" />
 
             {/* Dual logo bars */}
             <div

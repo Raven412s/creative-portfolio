@@ -1,5 +1,6 @@
 // ascii-morph.tsx (enhanced with tilt effect)
 "use client"
+import { cn } from '@/lib/utils'
 import { useEffect, useRef, useState } from 'react'
 
 const GLITCH = '!<>-_\\/[]{}=+*^?#@$░▒▓~|'
@@ -13,10 +14,13 @@ async function loadAsciiFile(src: string): Promise<string[]> {
 
 interface AsciiMorphProps {
     files: string[]
-    pause?: number
+    pause?: number,
+    className?: string
+    fontColor?: string
+    morph?: boolean
 }
 
-export function AsciiMorph({ files, pause = 5000 }: AsciiMorphProps) {
+export function AsciiMorph({ files, pause = 5000, className= '', fontColor= "text-white/50", morph = true }: AsciiMorphProps) {
     const [lines, setLines] = useState<string[]>([])
     const [rotateX, setRotateX] = useState(0)
     const [rotateY, setRotateY] = useState(0)
@@ -67,6 +71,11 @@ export function AsciiMorph({ files, pause = 5000 }: AsciiMorphProps) {
             framesRef.current = normalized
             setLines(normalized[0])
             
+            // Skip animation if morph is false
+            if (!morph) {
+                return
+            }
+
             const morphTo = (fromLines: string[], toIdx: number, onDone: () => void) => {
                 const toLines = framesRef.current[toIdx]
                 const fromFlat = fromLines.join('\n')
@@ -116,12 +125,12 @@ export function AsciiMorph({ files, pause = 5000 }: AsciiMorphProps) {
             clearTimeout(timerRef.current)
             if (rafRef.current) cancelAnimationFrame(rafRef.current)
         }
-    }, [files, pause])
+    }, [files, pause, morph])
 
     return (
         <div 
             ref={containerRef}
-            className="w-full flex items-center justify-center overflow-visible  perspective-[1000px] text-center"
+            className={cn("w-full flex items-center justify-center overflow-visible  perspective-[1000px] text-center", className)}
             style={{ transformStyle: 'preserve-3d' }}
         >
             <div
@@ -132,7 +141,7 @@ export function AsciiMorph({ files, pause = 5000 }: AsciiMorphProps) {
                 className='p-20'
             >
                 <pre
-                    className="font-mono text-white/50 select-none"
+                    className={cn("font-mono  select-none", fontColor)}
                     style={{
                         fontSize: 'clamp(4px, 0.7vw, 10px)',
                         letterSpacing: '0.03em',

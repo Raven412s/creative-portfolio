@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { CursorProvider } from "@/components/cursor/claude-cursor";
 import { geistMono, geistSans, gridular, inter, irishGrover, italiana, jacquard24, kings, kolkerBrush, playfair, poppins, rmMono, rmNeue } from "../fonts/fonts";
 import "../globals.css";
+import Footer from "@/components/global/footer";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -94,14 +95,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${playfair.variable} ${irishGrover.variable} ${italiana.variable} ${jacquard24.variable} ${kolkerBrush.variable} ${kings.variable} 
          ${gridular.variable} ${rmMono.variable} ${rmNeue.variable}
-         antialiased touch-manipulation [scrollbar:1px,default] w-full`}
-         suppressHydrationWarning
+         antialiased touch-manipulation w-full`}
+        suppressHydrationWarning
       >
         <SmoothScrolling>
           <ThemeProvider attribute="class" enableSystem={false}>
             <CursorProvider>
               <Navbar />
-              {children}
+              {/* ✅ Yahan z-index aur padding-bottom daalo */}
+              <main className="relative z-10 pointer-events-none" style={{ paddingBottom: "100vh" }}>
+                {children}
+              </main>
+              <Footer />
             </CursorProvider>
           </ThemeProvider>
         </SmoothScrolling>

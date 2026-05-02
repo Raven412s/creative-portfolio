@@ -91,8 +91,8 @@ function TestimonialCard({
         <span
           className={`text-[10px] font-mono tracking-widest uppercase px-2.5 py-1 rounded-full border transition-all ${
             isAccent
-              ? "border-[#1cf3a1] text-[#1cf3a1]"
-              : "border-neutral-200 text-neutral-400 group-hover:border-[#1cf3a1] group-hover:text-[#1cf3a1]"
+              ? "border-lime-accent text-lime-accborder-lime-accent"
+              : "border-neutral-200 text-neutral-400 group-hover:border-lime-accent group-hover:text-lime-accborder-lime-accent"
           }`}
         >
           {t.tag}

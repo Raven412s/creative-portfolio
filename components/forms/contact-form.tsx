@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import React from 'react'
@@ -30,21 +31,59 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 const BUDGET_OPTIONS = [
-  'under ₹10k',
-  '₹10k–₹25k',
-  '₹25k–₹60k',
-  '₹60k+',
-  "let's talk"
+    'under ₹10k',
+    '₹10k–₹25k',
+    '₹25k–₹60k',
+    '₹60k+',
+    "let's talk"
 ]
 
-const labelClass = 'font-mono text-[10px] tracking-[0.14em] uppercase text-white/40'
-const fieldClass = 'p-5 border border-white/10 transition-all duration-200 focus-within:border-white/35 focus-within:bg-white/[0.04]'
+const labelClass = 'font-mono text-[10px] tracking-[0.14em] uppercase text-[#0a0a0a]/50'
+const fieldClass = 'p-5 border border-[#0a0a0a]/25 transition-all duration-200 focus-within:border-[#0a0a0a]/35 focus-within:bg-[#0a0a0a]/[0.04]'
+const inputBaseClass = `
+bg-transparent 
+border-none 
+outline-none 
+shadow-none 
+rounded-none 
+p-0 h-auto 
+font-mono text-sm text-[#0a0a0a] 
+placeholder:text-[#0a0a0a]/35 
+focus-visible:ring-0 
+focus-visible:ring-offset-0
+`
+
+type FocusableFieldProps = {
+    children: (ref: React.RefObject<any>) => React.ReactNode
+    className?: string
+    invalid?: boolean
+}
+
+// ── 2. Sub-Component ────────────────────────────────────────────────
+function FocusableField({ children, className, invalid }: FocusableFieldProps) {
+    const inputRef = React.useRef<any>(null)
+
+    return (
+        <Field
+            data-invalid={invalid}
+            className={className}
+            onClick={(e) => {
+                const tag = (e.target as HTMLElement).tagName
+                if (tag !== "BUTTON") {
+                    inputRef.current?.focus()
+                }
+            }}
+        >
+            {children(inputRef)}
+        </Field>
+    )
+}
 
 // ── 2. Component ────────────────────────────────────────────────
 export function ContactForm() {
     const h_build = useCursorElement({
         state: 'icon',
-        icon: <MousePointerClickIcon className="size-7 inline text-white" />,
+        icon: <MousePointerClickIcon className="size-7 inline text-[#0a0a0a]" />,
     })
 
     // ── 3. useForm with zodResolver ──────────────────────────────
@@ -71,12 +110,12 @@ export function ContactForm() {
     // ── 5. Success state ─────────────────────────────────────────
     if (isSubmitSuccessful) {
         return (
-            <div className="border border-white/10 px-8 py-16 text-center animate-[fadeIn_0.5s_ease]">
-                <div className="text-3xl mb-4 tracking-[0.3em] text-white/40">✦</div>
-                <p className="font-serif text-[clamp(28px,4vw,38px)] italic font-normal text-white mb-3">
+            <div className="border border-[#0a0a0a]/25 px-8 py-16 text-center animate-[fadeIn_0.5s_ease]">
+                <div className="text-3xl mb-4 tracking-[0.3em] text-[#0a0a0a]/40">✦</div>
+                <p className="font-serif text-[clamp(28px,4vw,38px)] italic font-normal text-[#0a0a0a] mb-3">
                     Message sent.
                 </p>
-                <p className="font-mono text-[13px] text-white/45 tracking-wide mb-6">
+                <p className="font-mono text-[13px] text-[#0a0a0a]/45 tracking-wide mb-6">
                     I&apos;ll be in touch shortly — talk soon.
                 </p>
                 <Button
@@ -84,8 +123,8 @@ export function ContactForm() {
                     variant="outline"
                     onClick={() => reset()}
                     className="font-mono text-[11px] tracking-[0.14em] uppercase 
-border border-white/30 text-white/60 bg-transparent
-hover:text-lime-accent hover:border-white/50 hover:bg-white/30"
+border border-[#0a0a0a]/30 text-[#0a0a0a]/60 bg-transparent
+hover:text-lime-accent hover:border-[#0a0a0a]/50 hover:bg-[#0a0a0a]/30"
                 >
                     Send another
                 </Button>
@@ -105,30 +144,33 @@ hover:text-lime-accent hover:border-white/50 hover:bg-white/30"
                         name="name"
                         control={control}
                         render={({ field, fieldState }) => (
-                            <Field
-                                data-invalid={fieldState.invalid}
-                                className={fieldClass}
-                            >
-                                <FieldLabel
-                                    htmlFor={field.name}
-                                    className={labelClass}
-                                >
-                                    Name *
-                                </FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    placeholder="Your name"
-                                    aria-invalid={fieldState.invalid}
-                                    className="bg-transparent border-none outline-none p-0 h-auto font-mono text-sm text-white placeholder:text-white/20 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError
-                                        errors={[fieldState.error]}
-                                        className="font-mono text-[10px] text-red-400 mt-1"
-                                    />
+                            <FocusableField className={fieldClass} invalid={fieldState.invalid}>
+                                {(inputRef) => (
+                                    <>
+                                        <FieldLabel htmlFor={field.name} className={labelClass}>
+                                            Name *
+                                        </FieldLabel>
+
+                                        <Input
+                                            {...field}
+                                            ref={(el) => {
+                                                field.ref(el)
+                                                inputRef.current = el
+                                            }}
+                                            id={field.name}
+                                            placeholder="Your name"
+                                            className={inputBaseClass}
+                                        />
+
+                                        {fieldState.invalid && (
+                                            <FieldError
+                                                errors={[fieldState.error]}
+                                                className="font-mono text-[10px] text-red-400 mt-1"
+                                            />
+                                        )}
+                                    </>
                                 )}
-                            </Field>
+                            </FocusableField>
                         )}
                     />
 
@@ -137,31 +179,37 @@ hover:text-lime-accent hover:border-white/50 hover:bg-white/30"
                         name="email"
                         control={control}
                         render={({ field, fieldState }) => (
-                            <Field
-                                data-invalid={fieldState.invalid}
+                            <FocusableField
                                 className={`${fieldClass} lg:border-l-0`}
+                                invalid={fieldState.invalid}
                             >
-                                <FieldLabel
-                                    htmlFor={field.name}
-                                    className={labelClass}
-                                >
-                                    Email *
-                                </FieldLabel>
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type="email"
-                                    placeholder="your@email.com"
-                                    aria-invalid={fieldState.invalid}
-                                    className="bg-transparent border-none outline-none p-0 h-auto font-mono text-sm text-white placeholder:text-white/20 focus-visible:ring-0 focus-visible:ring-offset-0"
-                                />
-                                {fieldState.invalid && (
-                                    <FieldError
-                                        errors={[fieldState.error]}
-                                        className="font-mono text-[10px] text-red-400 mt-1"
-                                    />
+                                {(inputRef) => (
+                                    <>
+                                        <FieldLabel htmlFor={field.name} className={labelClass}>
+                                            Email *
+                                        </FieldLabel>
+
+                                        <Input
+                                            {...field}
+                                            ref={(el) => {
+                                                field.ref(el)
+                                                inputRef.current = el
+                                            }}
+                                            id={field.name}
+                                            type="email"
+                                            placeholder="your@email.com"
+                                            className={inputBaseClass}
+                                        />
+
+                                        {fieldState.invalid && (
+                                            <FieldError
+                                                errors={[fieldState.error]}
+                                                className="font-mono text-[10px] text-red-400 mt-1"
+                                            />
+                                        )}
+                                    </>
                                 )}
-                            </Field>
+                            </FocusableField>
                         )}
                     />
                 </div>
@@ -171,21 +219,29 @@ hover:text-lime-accent hover:border-white/50 hover:bg-white/30"
                     name="project"
                     control={control}
                     render={({ field, fieldState }) => (
-                        <Field
-                            data-invalid={fieldState.invalid}
+                        <FocusableField
                             className={`${fieldClass} border-t-0`}
+                            invalid={fieldState.invalid}
                         >
-                            <FieldLabel htmlFor={field.name} className={labelClass}>
-                                What are you working on?
-                            </FieldLabel>
-                            <Input
-                                {...field}
-                                id={field.name}
-                                placeholder="Site, app, campaign, experiment…"
-                                aria-invalid={fieldState.invalid}
-                                className="bg-transparent border-none outline-none p-0 h-auto font-mono text-sm text-white placeholder:text-white/20 focus-visible:ring-0 focus-visible:ring-offset-0"
-                            />
-                        </Field>
+                            {(inputRef) => (
+                                <>
+                                    <FieldLabel htmlFor={field.name} className={labelClass}>
+                                        What are you working on?
+                                    </FieldLabel>
+
+                                    <Input
+                                        {...field}
+                                        ref={(el) => {
+                                            field.ref(el)
+                                            inputRef.current = el
+                                        }}
+                                        id={field.name}
+                                        placeholder="Site, app, campaign…"
+                                        className={inputBaseClass}
+                                    />
+                                </>
+                            )}
+                        </FocusableField>
                     )}
                 />
 
@@ -212,7 +268,7 @@ hover:text-lime-accent hover:border-white/50 hover:bg-white/30"
                                         className={`font-mono text-[11px] tracking-wide px-3 py-1 rounded-sm border transition-all duration-150 cursor-pointer
                                             ${field.value === opt
                                                 ? 'border-lime-accent bg-lime-accent text-[#0a0a0a] font-medium'
-                                                : 'border-white/20 bg-transparent text-white/55 hover:border-white/40 hover:text-white/80'
+                                                : 'border-[#0a0a0a]/25 bg-transparent text-[#0a0a0a]/55 hover:border-[#0a0a0a]/40 hover:text-[#0a0a0a]/80'
                                             }`}
                                     >
                                         {opt}
@@ -228,46 +284,55 @@ hover:text-lime-accent hover:border-white/50 hover:bg-white/30"
                     name="message"
                     control={control}
                     render={({ field, fieldState }) => (
-                        <Field
-                            data-invalid={fieldState.invalid}
+                        <FocusableField
                             className={`${fieldClass} border-t-0`}
+                            invalid={fieldState.invalid}
                         >
-                            <FieldLabel htmlFor={field.name} className={labelClass}>
-                                Message *
-                            </FieldLabel>
-                            <Textarea
-                                {...field}
-                                id={field.name}
-                                placeholder="Tell me about the project, timeline, or anything else…"
-                                aria-invalid={fieldState.invalid}
-                                className="bg-transparent border-none outline-none p-0 min-h-27.5 resize-none font-mono text-sm text-white placeholder:text-white/20 focus-visible:ring-0 focus-visible:ring-offset-0"
-                            />
-                            {fieldState.invalid && (
-                                <FieldError
-                                    errors={[fieldState.error]}
-                                    className="font-mono text-[10px] text-red-400 mt-1"
-                                />
+                            {(inputRef) => (
+                                <>
+                                    <FieldLabel htmlFor={field.name} className={labelClass}>
+                                        Message *
+                                    </FieldLabel>
+
+                                    <Textarea
+                                        {...field}
+                                        ref={(el) => {
+                                            field.ref(el)
+                                            inputRef.current = el
+                                        }}
+                                        id={field.name}
+                                        placeholder="Tell me about the project…"
+                                        className={`${inputBaseClass} min-h-27.5 resize-none`}
+                                    />
+
+                                    {fieldState.invalid && (
+                                        <FieldError
+                                            errors={[fieldState.error]}
+                                            className="font-mono text-[10px] text-red-400 mt-1"
+                                        />
+                                    )}
+                                </>
                             )}
-                        </Field>
+                        </FocusableField>
                     )}
                 />
 
             </FieldGroup>
 
             {/* Footer */}
-            <div className="flex items-center justify-between border border-white/10 border-t-0 px-5 py-4">
-                <span className="font-mono text-[11px] text-white/30 tracking-wide">
+            <div className="flex items-center justify-between border border-[#0a0a0a]/25 border-t-0 px-5 py-4">
+                <span className="font-mono text-[11px] text-[#0a0a0a]/50 tracking-wide">
                     typically reply within 24h
                 </span>
-          <Button
-  {...h_build}
-  type="submit"
-  className="font-mono text-[11px] tracking-[0.14em] uppercase px-6 py-2.5 border rounded-sm transition-all duration-150 cursor-pointer h-auto
+                <Button
+                    {...h_build}
+                    type="submit"
+                    className="font-mono text-[11px] tracking-[0.14em] uppercase px-6 py-2.5 border rounded-sm transition-all duration-150 cursor-pointer h-auto
              border-lime-accent text-lime-accent bg-transparent
              hover:bg-lime-accent hover:text-[#0a0a0a]"
->
-  Send it →
-</Button>
+                >
+                    Send it →
+                </Button>
             </div>
 
             <style>{`
