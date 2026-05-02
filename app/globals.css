@@ -50,6 +50,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-lime-accent: #1cf3a1;
+  --color-lime-accent-light: #b8d957;
+  --color-lime-accent-dark: #8fb833;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -92,6 +95,7 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --accent-lime: #1cf3a1;
 }
 
 .dark {
@@ -126,6 +130,7 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  --accent-lime: #1cf3a1;
 }
 
 @layer base {
@@ -156,7 +161,7 @@
   }
 
   .menuOverlayHeading {
-    @apply text-[#1cf3a1] font-rmNeue uppercase text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[5vw] xl:text-[4.5vw] 2xl:text-[4vw]
+    @apply text-lime-accent font-rmNeue uppercase text-[12vw] sm:text-[10vw] md:text-[8vw] lg:text-[5vw] xl:text-[4.5vw] 2xl:text-[4vw]
   }
 
   .menuIndex {
@@ -180,16 +185,32 @@
 
 /* Sabhi modern browsers ke liye */
 ::selection {
-  background-color: #1cf3a157;
-  /* Background color (Aapka emerald color) */
+  background-color: #1cf3a140;
   color: #000000;
-  /* Text color */
 }
 
 /* Firefox ke liye (Older versions) */
 ::-moz-selection {
-  background-color: #1cf3a157;
+  background-color: #1cf3a140;
   color: #000000;
+}
+
+/* Lime green accent utilities */
+.lime-accent {
+  color: #1cf3a1;
+}
+
+.lime-accent-hover:hover {
+  color: #1cf3a1;
+  text-decoration: underline;
+}
+
+.lime-border {
+  border-color: #1cf3a1;
+}
+
+.lime-bg {
+  background-color: #1cf3a1;
 }
 
 .info-pattern {

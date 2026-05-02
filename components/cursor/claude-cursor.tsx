@@ -452,7 +452,7 @@ function MouseFollower({
     top:          -24,
     left:         -24,
     borderRadius: "50%",
-    background:   customBgColor ? customBgColor : (isExclusion ? "#ffffff" : "#1cf3a105"),
+    background:   customBgColor ? customBgColor : (isExclusion ? "#ffffff" : cursorState === "icon" ? "#1cf3a115" : "#1cf3a105"),
     transform:    `scale(${scale})`,
     opacity: cursorState === "text" || cursorState === "icon" ? 0.65 : 1,
     transition:   `transform ${isActive ? ".1s" : ".25s"} ease-in-out, opacity .1s, background .4s`,

@@ -29,7 +29,7 @@ const STACK = [
     { label: "Next.js",          color: "#fff" },
     { label: "TypeScript",        color: "#3B82F6" },
     { label: "Tailwind",          color: "#38BDF8" },
-    { label: "GSAP",              color: "#88CC00" },
+    { label: "GSAP",              color: "#1cf3a1" },
     { label: "Framer Motion",     color: "#BB55FF" },
     { label: "Node.js",           color: "#68A063" },
     { label: "Prisma",            color: "#5A67D8" },
@@ -86,7 +86,8 @@ const MenuToggleContent = ({ isOpen, h }: MenuToggleContentProps) => (
 // ── Sub-component: Blinking cursor ────────────────────────────────────────────
 const BlinkCursor = () => (
     <motion.span
-        className="inline-block w-[2px] h-[1em] bg-emerald-400 ml-0.5 align-middle"
+        className="inline-block w-0.5 h-[1em] ml-0.5 align-middle"
+        style={{ backgroundColor: '#1cf3a1' }}
         animate={{ opacity: [1, 0] }}
         transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
     />
@@ -110,7 +111,7 @@ const TerminalBlock = () => {
             <div className="flex items-center gap-1.5 px-3 py-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)' }}>
                 <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
                 <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/80" />
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/80" />
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#1cf3a1' }} />
                 <span className="ml-2 text-white/20 text-[10px] tracking-widest uppercase">terminal</span>
             </div>
 
@@ -119,7 +120,7 @@ const TerminalBlock = () => {
                 {lines.map((l, i) => (
                     <div key={i}>
                         <div className="flex items-center gap-1.5">
-                            <span className="text-emerald-400">❯</span>
+                            <span style={{ color: '#1cf3a1' }}>❯</span>
                             <span className="text-white/50">{l.prompt}</span>
                             <span className="text-white/90">{l.cmd}</span>
                         </div>
@@ -128,7 +129,7 @@ const TerminalBlock = () => {
                 ))}
                 {/* active line */}
                 <div className="flex items-center gap-1.5 mt-1">
-                    <span className="text-emerald-400">❯</span>
+                    <span style={{ color: '#1cf3a1' }}>❯</span>
                     <span className="text-white/50">~</span>
                     <BlinkCursor />
                 </div>
@@ -160,11 +161,12 @@ const StackPills = () => (
 const AvailBadge = () => (
     <div className="flex items-center gap-2">
         <motion.span
-            className="w-2 h-2 rounded-full bg-emerald-400"
+            className="w-2 h-2 rounded-full"
+            style={{ background: '#1cf3a1' }}
             animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
             transition={{ duration: 1.8, repeat: Infinity }}
         />
-        <span className="text-emerald-400 text-xs font-mono tracking-widest uppercase">
+        <span className="text-xs font-mono tracking-widest uppercase" style={{ color: '#1cf3a1' }}>
             Available for hire
         </span>
     </div>
@@ -255,7 +257,6 @@ const Nav = () => {
               .to(navRef.current,         { width: '95vw', duration: 0.5, ease: 'power3.inOut' }, 0.3)
               .set(allLinesRef.current,   { y: '100%' }, 0.5)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen, activeIndex])
 
     // ── Cursor ─────────────────────────────────────────────────────────────────
@@ -273,7 +274,7 @@ const Nav = () => {
             {/* Dual logo bars */}
             <div
                 aria-label="Site logo"
-                className="fixed top-0 w-full flex justify-between mix-blend-difference z-[1000] mt-2 lg:mt-[0.9vw] pointer-events-none"
+                className="fixed top-0 w-full flex justify-between mix-blend-difference z-1000 mt-2 lg:mt-[0.9vw] pointer-events-none"
             >
                 {[0, 1].map(i => (
                     <div key={i} className={isTouchDevice ? '' : 'pointer-events-auto'}>
@@ -310,8 +311,8 @@ const Nav = () => {
                     2xl:px-[1.5vw] 2xl:py-[0.8vw]
                     border rounded-full lg:rounded-[2vw]
                     shadow-[0_0_50px_-10px_rgba(0,0,0,0.65)]
-                    z-[9999] cursor-pointer
-                    min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0
+                    z-9999 cursor-pointer
+                    min-h-11 min-w-11 sm:min-h-0 sm:min-w-0
                 "
             >
                 {isTouchDevice
@@ -330,6 +331,7 @@ const Nav = () => {
                 role="dialog"
                 aria-modal="true"
                 aria-label="Navigation menu"
+                data-lenis-prevent
             >
                 {/* subtle green glow top-left */}
                 <div
@@ -342,7 +344,7 @@ const Nav = () => {
                     {/* ── LEFT: big nav links ──────────────────────────────── */}
                     <div
                         ref={containerRef}
-                        className="relative flex-shrink-0 flex flex-col gap-1 lg:border-r lg:border-white/8 lg:pr-[2vw]"
+                        className="relative shrink-0 flex flex-col gap-1 lg:border-r lg:border-white/8 lg:pr-[2vw]"
                         onMouseLeave={() => animateToLink(activeIndex)}
                     >
                         {/* flying indicator diamond — sits between number col and link text */}
@@ -361,7 +363,7 @@ const Nav = () => {
                             >
                                 {/* index number */}
                                 <span
-                                    className="font-mono text-[10px] tabular-nums transition-colors duration-200 w-6 text-right flex-shrink-0"
+                                    className="font-mono text-[10px] tabular-nums transition-colors duration-200 w-6 text-right shrink-0"
                                     style={{ color: pathname === link.href ? '#34D399' : 'rgba(255,255,255,0.2)' }}
                                 >
                                     {link.num}
@@ -373,21 +375,21 @@ const Nav = () => {
                                     {...(isTouchDevice ? {} : h_link)}
                                     className={`
                                         font-semibold tracking-tight leading-none transition-colors duration-200
-                                        text-[clamp(1.6rem,4vw,3rem)]
+                                        text-[clamp(1.6rem,4vw,3rem)] py-1.5
                                         ${pathname === link.href ? 'text-emerald-400' : 'text-white/85 hover:text-white'}
                                     `}
                                     onClick={() => setIsOpen(false)}
                                     role="menuitem"
                                     tabIndex={isOpen ? 0 : -1}
                                 >
-                                    <StaggerText text={link.label} className='h-[4rem]'/>
+                                    <StaggerText text={link.label} className='h-8 lg:h-16'/>
                                 </Link>
 
                                 {/* active dot */}
                                 {pathname === link.href && (
                                     <motion.span
                                         layoutId="active-dot"
-                                        className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0"
+                                        className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"
                                     />
                                 )}
                             </div>

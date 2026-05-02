@@ -86,7 +86,7 @@ export default function StaggerText({
       ref={containerRef}
       onMouseEnter={handleEnter}
       onMouseLeave={handleLeave}
-      className={`relative cursor-pointer inline-flex whitespace-nowrap ${className}`}
+      className={`relative cursor-pointer inline-flex ${className}`}
       style={{ lineHeight: 1 }}
     >
       <div className="overflow-hidden">

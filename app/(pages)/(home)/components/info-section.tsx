@@ -25,18 +25,18 @@ function ProjectLink({ project }: { project: typeof projects[number] }) {
       target="_blank"
       rel="noopener noreferrer"
       {...h}
-      className="group relative block border-b border-white/5 pb-5 mb-5 last:border-0 last:mb-0 transition-all duration-300 hover:border-white/20"
+      className="group relative block border-b border-white/5 pb-5 mb-5 last:border-0 last:mb-0 transition-all duration-300 hover:border-[#1cf3a1]/40"
     >
       <div className="flex items-start justify-between gap-6">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
-            <span className="text-[9px] uppercase tracking-[0.2em] text-white/30 font-mono">
+            <span className="text-[9px] uppercase tracking-[0.2em] text-white/30 font-mono group-hover:text-[#1cf3a1] transition-colors">
               {project.title}
             </span>
             <span className="w-1 h-1 rounded-full bg-white/20" />
             <span className="text-[9px] text-white/20 font-mono">{project.tech.split('·')[0]}</span>
           </div>
-          <h5 className="text-lg font-medium tracking-tight group-hover:pl-1 transition-all duration-200 leading-tight">
+          <h5 className="text-lg font-medium tracking-tight group-hover:pl-1 group-hover:text-[#1cf3a1] transition-all duration-200 leading-tight">
             {project.name}
           </h5>
           <p className="text-xs text-white/40 mt-1.5 leading-relaxed max-w-md">{project.desc}</p>

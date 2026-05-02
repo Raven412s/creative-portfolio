@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
 import ClipText from "@/components/text-animations/scroll-based-reveal";
-import Image from "next/image";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SplitText from "@/components/text-animations/split-text";
+import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Image from "next/image";
+import React, { useEffect, useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger, CustomEase);
 CustomEase.create("smooth", "0.76,0,0.24,1");
@@ -17,7 +17,7 @@ export function AboutSection() {
   const introRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
@@ -71,6 +71,7 @@ export function AboutSection() {
         }, 1.5);
         tl.to(pinRef.current, {
           backgroundColor: "#0a0a0a",
+            "--grid-color": "rgba(255,255,255,0.06)",
           duration: 1,
           ease: "smooth",
         }, 2.2);
@@ -130,6 +131,7 @@ export function AboutSection() {
         }, 1.4);
         tl.to(pinRef.current, {
           backgroundColor: "#0a0a0a",
+            "--grid-color": "rgba(255,255,255,0.06)",
           duration: 0.8,
           ease: "smooth",
         }, 2);
@@ -142,12 +144,12 @@ export function AboutSection() {
 
       /* ================= MOBILE (< 768px) ================= */
       mm.add("(max-width: 767px)", () => {
-        
+
         gsap.set(imageRef.current, {
           scale: 0.5,
           clipPath: "inset(100% 0% 0% 0%)",
           borderRadius: "1.5rem",
-        
+
         });
 
         gsap.set(aboutRef.current, { y: "100vh", color: "#030303" });
@@ -164,7 +166,7 @@ export function AboutSection() {
           },
         });
 
-        
+
         tl.to(imageRef.current, {
           clipPath: "inset(0% 0% 0% 0%)",
           scale: 1,
@@ -179,7 +181,7 @@ export function AboutSection() {
           ease: "smooth",
         }, 0.1);
 
-        
+
         tl.to(imageRef.current, {
           width: "100vw",
           height: "45vh",
@@ -191,16 +193,17 @@ export function AboutSection() {
           ease: "smooth",
         }, 0.8);
 
-        
+
         tl.to(aboutRef.current, {
           y: "45vh",
           duration: 0.7,
           ease: "smooth",
         }, 1.2);
 
-        
+
         tl.to(pinRef.current, {
           backgroundColor: "#0a0a0a",
+          "--grid-color": "rgba(255,255,255,0.06)",
           duration: 0.6,
           ease: "smooth",
         }, 1.6);
@@ -221,7 +224,7 @@ export function AboutSection() {
       ref={containerRef}
       className="relative h-[240vh]  lg:h-[300vh]"
     >
-      <div ref={pinRef} className="lg:h-screen h-screen w-full relative overflow-hidden">
+      <div ref={pinRef} className=" lg:h-screen pin-grid-bg h-screen w-full relative overflow-hidden" style={{ "--grid-color": "rgba(0,0,0,0.038)" } as React.CSSProperties} >
         {/* INTRO TEXT */}
         <div
           ref={introRef}
@@ -272,6 +275,16 @@ export function AboutSection() {
           </ClipText>
         </div>
       </div>
+      <style jsx>{`
+ .pin-grid-bg {
+  background-color: #fefefe;
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+      `}</style>
     </section>
   );
 }
