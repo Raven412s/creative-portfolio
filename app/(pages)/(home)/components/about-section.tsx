@@ -17,7 +17,7 @@ export function AboutSection() {
   const introRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
@@ -71,7 +71,7 @@ export function AboutSection() {
         }, 1.5);
         tl.to(pinRef.current, {
           backgroundColor: "#0a0a0a",
-            "--grid-color": "rgba(255,255,255,0.06)",
+          "--grid-color": "rgba(255,255,255,0.06)",
           duration: 1,
           ease: "smooth",
         }, 2.2);
@@ -131,7 +131,7 @@ export function AboutSection() {
         }, 1.4);
         tl.to(pinRef.current, {
           backgroundColor: "#0a0a0a",
-            "--grid-color": "rgba(255,255,255,0.06)",
+          "--grid-color": "rgba(255,255,255,0.06)",
           duration: 0.8,
           ease: "smooth",
         }, 2);
@@ -187,7 +187,7 @@ export function AboutSection() {
           height: "45vh",
           top: "0%",
           left: "50%",
-          transform: "translateX(-50%) translateY(0%)", // 完全控制 transform
+          transform: "translateX(-50%) translateY(0%)",
           borderRadius: "0rem",
           duration: 0.8,
           ease: "smooth",
