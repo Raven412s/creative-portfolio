@@ -103,7 +103,7 @@ export default function RootLayout({
             <CursorProvider>
               <Navbar />
               {/* ✅ Yahan z-index aur padding-bottom daalo */}
-              <main className="relative z-10 pointer-events-none" style={{ paddingBottom: "100vh" }}>
+              <main className="relative z-10 pointer-events-none pb-[60vh] lg:pb-[150vh]" >
                 {children}
               </main>
               <Footer />

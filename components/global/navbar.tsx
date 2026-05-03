@@ -334,8 +334,8 @@ const Nav = () => {
             >
                 {/* subtle green glow top-left */}
                 <div
-                    className="absolute -top-20 -left-20 w-56 h-56 rounded-full pointer-events-none"
-                    style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.12) 0%, transparent 70%)' }}
+                    className="absolute -top-20 -left-20 w-100 h-100 rounded-full pointer-events-none"
+                    style={{ background: 'radial-gradient(circle, rgba(52,211,153,0.3) 0%, transparent 70%)' }}
                 />
 
                 <div className="relative p-5 md:p-[2vw] flex flex-col lg:flex-row gap-6 lg:gap-[2vw]">
