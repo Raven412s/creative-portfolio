@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider";
 import { CursorProvider } from "@/components/cursor/claude-cursor";
 import { geistMono, geistSans, gridular, inter, irishGrover, italiana, jacquard24, kings, kolkerBrush, playfair, poppins, rmMono, rmNeue } from "../fonts/fonts";
 import "../globals.css";
+
 import Footer from "@/components/global/footer";
 
 export const viewport: Viewport = {

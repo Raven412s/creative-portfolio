@@ -221,6 +221,7 @@ export function AboutSection() {
 
   return (
     <section
+    id="about"
       ref={containerRef}
       className="relative h-[240vh]  lg:h-[300vh]"
     >

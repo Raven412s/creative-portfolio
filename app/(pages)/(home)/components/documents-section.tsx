@@ -30,7 +30,22 @@ interface RelativeRect {
     height: number
 }
 
-const documents = [
+interface DocumentItem {
+    id: number
+    title: string
+    icon: React.ReactNode
+    description: string
+    link: string
+    color: string
+    iconColor: string
+    rotation: string
+    position: string
+    size: string
+    glowColor: string
+    glowColorEdge: string
+}
+
+const documents: DocumentItem[] = [
     {
         id: 1,
         title: "Resume",
@@ -115,10 +130,9 @@ const documents = [
         glowColor: "rgba(16, 185, 129, 0.6)",
         glowColorEdge: "16, 185, 129",
     }
-];
+]
 
-// ─── Config ──────────────────────────────────────────────────
-// Reduced particle count for better performance
+// ─── Config ───────────────────────────────────────────────────
 const PARTICLE_COUNT = 500
 const ATTRACTION_RADIUS = 40
 const ATTRACTION_DISTANCE = 10
@@ -164,8 +178,63 @@ function isVisible(p: Particle, width: number, height: number, margin = 50): boo
     return p.x > -margin && p.x < width + margin && p.y > -margin && p.y < height + margin
 }
 
+function DocumentCard({ doc }: { doc: DocumentItem }) {
+    return (
+       <a 
+            href={doc.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+                "relative w-full h-full border-2 rounded-2xl p-3 md:p-6 flex flex-col items-center justify-center",
+                "shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden",
+                doc.color
+            )}
+        >
+            {/* Corner decorations */}
+            <div className="absolute top-2 right-2 md:top-3 md:right-3 w-2 h-2 md:w-3 md:h-3 border-t-2 border-r-2 border-current opacity-30 rounded-tr-sm pointer-events-none" />
+            <div className="absolute top-2 left-2 md:top-3 md:left-3 w-2 h-2 md:w-3 md:h-3 border-t-2 border-l-2 border-current opacity-30 rounded-tl-sm pointer-events-none" />
+            <div className="absolute bottom-2 right-2 md:bottom-3 md:right-3 w-2 h-2 md:w-3 md:h-3 border-b-2 border-r-2 border-current opacity-30 rounded-br-sm pointer-events-none" />
+            <div className="absolute bottom-2 left-2 md:bottom-3 md:left-3 w-2 h-2 md:w-3 md:h-3 border-b-2 border-l-2 border-current opacity-30 rounded-bl-sm pointer-events-none" />
+            <div className="absolute top-4 right-4 md:top-6 md:right-6 w-1 h-1 md:w-1.5 md:h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
+            <div className="absolute bottom-4 left-4 md:bottom-6 md:left-6 w-1 h-1 md:w-1.5 md:h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
+
+            {/* Card content */}
+            <div className="relative z-10 text-center">
+                {/* Icon — smaller on mobile */}
+                <div className={cn(
+                    "mb-2 md:mb-4 transition-transform duration-300 group-hover:scale-110",
+                    "[&>svg]:w-5 [&>svg]:h-5 md:[&>svg]:w-8 md:[&>svg]:h-8",
+                    doc.iconColor
+                )}>
+                    {doc.icon}
+                </div>
+
+                <h3 className="text-sm md:text-2xl font-bold text-gray-800 mb-1 md:mb-2 leading-tight">
+                    {doc.title}
+                </h3>
+
+                {/* Description hidden on mobile — not enough space in h-40 */}
+                <p className=" text-gray-600 text-sm mb-4">
+                    {doc.description}
+                </p>
+
+                <div className="inline-flex items-center gap-1 md:gap-2 text-xs md:text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                    <span>Explore</span>
+                    <svg
+                        className="w-3 h-3 md:w-4 md:h-4 transform transition-transform duration-300 group-hover:translate-x-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                </div>
+            </div>
+        </a>
+    )
+}
+
 export function DocumentsSection() {
-    // Single boolean array — only triggers re-render when a card's glow state actually toggles
     const glowState = useRef<boolean[]>(Array(CARD_COUNT).fill(false))
     const [glowFlags, setGlowFlags] = useState<boolean[]>(Array(CARD_COUNT).fill(false))
 
@@ -220,7 +289,6 @@ export function DocumentsSection() {
 
         let animationId: number
         let t = 0
-
         let mouseX = -9999
         let mouseY = -9999
         let needsMouseUpdate = false
@@ -232,7 +300,6 @@ export function DocumentsSection() {
             const mx = mouseRef.current.x
             const my = mouseRef.current.y
 
-            // Throttle to every 2 frames
             if (frameRef.current % 2 === 0 && mx !== -9999) {
                 for (let i = 0; i < particles.length; i++) {
                     const p = particles[i]
@@ -299,8 +366,6 @@ export function DocumentsSection() {
 
         const enterHandlers: (() => void)[] = []
         const leaveHandlers: (() => void)[] = []
-
-        // Track how many particles per card have settled (glowReady)
         const cardReadyCount = new Array(CARD_COUNT).fill(0)
 
         cardRefs.current.forEach((card, idx) => {
@@ -336,7 +401,6 @@ export function DocumentsSection() {
                         onComplete: () => {
                             p.glowReady = true
                             cardReadyCount[idx]++
-                            // Only trigger state update once when enough particles settle
                             if (!glowState.current[idx] && cardReadyCount[idx] >= 10) {
                                 glowState.current[idx] = true
                                 setGlowFlags(prev => {
@@ -357,7 +421,6 @@ export function DocumentsSection() {
                 delete activeGlowEdgeColors.current[idx]
                 cardReadyCount[idx] = 0
 
-                // Batch the glow state update — single setState call
                 if (glowState.current[idx]) {
                     glowState.current[idx] = false
                     setGlowFlags(prev => {
@@ -391,7 +454,6 @@ export function DocumentsSection() {
             leaveHandlers.push(onLeave)
         })
 
-        // ─── Offscreen buffer for particle rendering (reduces main canvas redraws) ───
         const offscreen = document.createElement("canvas")
         const offCtx = offscreen.getContext("2d")!
 
@@ -413,7 +475,6 @@ export function DocumentsSection() {
 
             ctx.clearRect(0, 0, width, height)
 
-            // ─── Clip out card areas ───
             ctx.save()
             ctx.beginPath()
             ctx.rect(0, 0, width, height)
@@ -423,7 +484,6 @@ export function DocumentsSection() {
             }
             ctx.clip("evenodd")
 
-            // ─── Draw particles ───
             for (let i = 0; i < particles.length; i++) {
                 const p = particles[i]
                 if (!isVisible(p, width, height)) continue
@@ -442,7 +502,6 @@ export function DocumentsSection() {
                 const drawY = p.y + offsetY
 
                 if (p.glowing) {
-                    // Simple bright dot — no expensive radial gradient per particle
                     const edgeColor = p.cardIndex !== undefined
                         ? activeGlowEdgeColors.current[p.cardIndex] || "255,255,255"
                         : "255,255,255"
@@ -460,9 +519,6 @@ export function DocumentsSection() {
 
             ctx.restore()
 
-            // ─── Card edge glow pass ───
-            // Draw a tight glowing border stroke around each active card rect
-            // This runs directly on the main canvas OUTSIDE the clip region
             for (let idx = 0; idx < CARD_COUNT; idx++) {
                 if (!glowState.current[idx]) continue
                 const r = cardRects[idx]
@@ -471,7 +527,6 @@ export function DocumentsSection() {
                 const edgeColor = activeGlowEdgeColors.current[idx]
                 if (!edgeColor) continue
 
-                // Outer soft halo (wide, low opacity)
                 ctx.save()
                 ctx.shadowBlur = 28
                 ctx.shadowColor = `rgba(${edgeColor}, 0.5)`
@@ -482,7 +537,6 @@ export function DocumentsSection() {
                 ctx.stroke()
                 ctx.restore()
 
-                // Inner crisp edge glow (tight, high opacity)
                 ctx.save()
                 ctx.shadowBlur = 10
                 ctx.shadowColor = `rgba(${edgeColor}, 0.9)`
@@ -516,25 +570,23 @@ export function DocumentsSection() {
     }, [])
 
     return (
-        <section className="relative w-full h-screen bg-[#0a0a0a] overflow-hidden flex items-center justify-center ">
-            {/* Canvas sits behind everything */}
+        <section className="relative w-full h-screen bg-[#0a0a0a] overflow-hidden flex items-center justify-center">
             <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0" />
+
             {/* Heading */}
             <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 text-center pointer-events-none">
                 <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tight mb-3 relative">
                     <span className="bg-linear-to-r from-white via-white to-white/70 bg-clip-text text-transparent">
                         Where I Build & Share
                     </span>
-
-                    {/* subtle glow */}
-                    <span className="absolute inset-0 blur-2xl opacity-30 bg-white/20 rounded-full"></span>
+                    <span className="absolute inset-0 blur-2xl opacity-30 bg-white/20 rounded-full" />
                 </h2>
-
                 <p className="text-sm md:text-base text-white/60 tracking-[0.3em] uppercase">
                     Code. Content. Connections.
                 </p>
             </div>
-            {/* Desktop Layout (UNCHANGED) */}
+
+            {/* Desktop Layout */}
             <div className="hidden md:block card-grid relative w-full max-w-7xl mx-auto h-[600px]">
                 {documents.map((doc, i) => (
                     <div
@@ -548,16 +600,10 @@ export function DocumentsSection() {
                             "hover:scale-105 hover:rotate-0 cursor-pointer group",
                         )}
                     >
-                        {/*
-                         * CSS box-shadow glow — tied to the card element itself so it
-                         * ALWAYS moves with the card. z-index is inherited from parent.
-                         * glowFlags[i] drives the CSS class, not glowState.current.
-                         */}
+                        {/* Glow overlay — desktop only, tied to particle system */}
                         <div
                             className={cn(
-                                "absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500",
-                                // z-[19] keeps glow above resting cards (z-10) but below hovered card (z-20)
-                                "z-[19]",
+                                "absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500 z-[19]",
                                 glowFlags[i] ? "opacity-100" : "opacity-0"
                             )}
                             style={{
@@ -569,113 +615,26 @@ export function DocumentsSection() {
                                 `,
                             }}
                         />
-
-                        <a
-                            href={doc.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className={cn(
-                                "relative w-full h-full border-2 rounded-2xl p-6 flex flex-col items-center justify-center",
-                                "shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden",
-                                doc.color
-                            )}
-                        >
-                            {/* Corner decorations — these live inside the <a> so they
-                                always move with the card. No separate float animation. */}
-                            <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-current opacity-30 rounded-tr-sm pointer-events-none" />
-                            <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-current opacity-30 rounded-tl-sm pointer-events-none" />
-                            <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-current opacity-30 rounded-br-sm pointer-events-none" />
-                            <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-current opacity-30 rounded-bl-sm pointer-events-none" />
-                            <div className="absolute top-6 right-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
-                            <div className="absolute bottom-6 left-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
-
-                            {/* Card content */}
-                            <div className="relative z-10 text-center">
-                                <div className={cn("mb-4 transition-transform duration-300 group-hover:scale-110", doc.iconColor)}>
-                                    {doc.icon}
-                                </div>
-                                <h3 className="text-2xl font-bold text-gray-800 mb-2">{doc.title}</h3>
-                                <p className="text-gray-600 text-sm mb-4">{doc.description}</p>
-                                <div className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                                    <span>Explore</span>
-                                    <svg
-                                        className="w-4 h-4 transform transition-transform duration-300 group-hover:translate-x-1"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </a>
+                        <DocumentCard doc={doc} />
                     </div>
                 ))}
             </div>
 
-            {/* Mobile Layout (GRID) */}
+            {/* Mobile Layout */}
             <div className="lg:hidden relative z-10 w-full px-4 py-10">
                 <div className="grid grid-cols-2 gap-4">
-                    {documents.map((doc, i) => (
+                    {documents.map((doc) => (
                         <div
                             key={doc.id}
-                            // ref={(el) => { cardRefs.current[i] = el }}
-                            className={cn(
-                                "relative h-40 group cursor-pointer",
-                                "transition-transform duration-300 active:scale-95"
-                            )}
+                            className="relative h-40 group cursor-pointer transition-transform duration-300 active:scale-95"
                         >
-                            {/* SAME CARD CONTENT */}
-                            <a
-                                href={doc.link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={cn(
-                                    "relative w-full h-full border-2 rounded-2xl p-6 flex flex-col items-center justify-center",
-                                    "shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden",
-                                    doc.color
-                                )}
-                            >
-                                {/* Corner decorations — these live inside the <a> so they
-                                always move with the card. No separate float animation. */}
-                                <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-current opacity-30 rounded-tr-sm pointer-events-none" />
-                                <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-current opacity-30 rounded-tl-sm pointer-events-none" />
-                                <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-current opacity-30 rounded-br-sm pointer-events-none" />
-                                <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-current opacity-30 rounded-bl-sm pointer-events-none" />
-                                <div className="absolute top-6 right-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
-                                <div className="absolute bottom-6 left-6 w-1.5 h-1.5 bg-current rounded-full opacity-20 pointer-events-none" />
-
-                                {/* Card content */}
-                                <div className="relative z-10 text-center">
-                                    <div className={cn("mb-4 transition-transform duration-300 group-hover:scale-110", doc.iconColor)}>
-                                        {doc.icon}
-                                    </div>
-                                    <h3 className="text-2xl font-bold text-gray-800 mb-2">{doc.title}</h3>
-                                    <p className="text-gray-600 text-sm mb-4">{doc.description}</p>
-                                    <div className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 group-hover:text-gray-900">
-                                        <span>Explore</span>
-                                        <svg
-                                            className="w-4 h-4 transform transition-transform duration-300 group-hover:translate-x-1"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                        >
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </a>
+                            <DocumentCard doc={doc} />
                         </div>
                     ))}
                 </div>
             </div>
 
             <style jsx>{`
-                /*
-                 * Uses the 'float' keyframe defined in globals.css.
-                 * Targets only direct .card-item children of .card-grid so
-                 * nested absolute elements (corner decorations etc.) are unaffected.
-                 */
                 .card-grid > .card-item {
                     animation: float 6s ease-in-out infinite;
                 }
@@ -685,8 +644,7 @@ export function DocumentsSection() {
                 .card-grid > .card-item:nth-child(4) { animation-delay: -1s; animation-duration: 8s; }
                 .card-grid > .card-item:nth-child(5) { animation-delay: -3s; animation-duration: 6s; }
                 .card-grid > .card-item:nth-child(6) { animation-delay: -5s; animation-duration: 7s; }
- 
-                /* Pause float on hover so it doesn't fight the scale/rotate transition */
+
                 .card-grid > .card-item:hover {
                     animation-play-state: paused;
                 }

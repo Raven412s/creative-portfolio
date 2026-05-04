@@ -5,35 +5,27 @@ import { Menu, MousePointerClickIcon, X } from 'lucide-react'
 import { useIsTouchDevice } from '@/hooks/use-is-touch-device'
 import { Magnetic } from '../buttons'
 import RavenLogo from '../svgs/raven-logo'
-import { useCursorElement, type CursorElementHandlers } from '../cursor/claude-cursor'
+import { useCursor, useCursorElement, type CursorElementHandlers } from '../cursor/claude-cursor'
 import StaggerText from '../ui/stagger-text'
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import gsap from 'gsap'
 import { SplitText } from 'gsap/SplitText'
+import { NAV_LINKS } from '@/constants'
 
 gsap.registerPlugin(SplitText)
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-    { label: "Home",         href: "/",            num: "00" },
-    { label: "About",        href: "/about",        num: "01" },
-    { label: "Works",        href: "/works",        num: "02" },
-    { label: "Case Studies", href: "/case-studies", num: "03" },
-    { label: "Blogs",        href: "/blog",         num: "04" },
-    { label: "Contact",      href: "/contact",      num: "05" },
-] as const
 
 const STACK = [
-    { label: "Next.js",          color: "#fff" },
-    { label: "TypeScript",        color: "#3B82F6" },
-    { label: "Tailwind",          color: "#38BDF8" },
-    { label: "GSAP",              color: "#88CC00" },
-    { label: "Framer Motion",     color: "#BB55FF" },
-    { label: "Node.js",           color: "#68A063" },
-    { label: "Prisma",            color: "#5A67D8" },
-    { label: "PostgreSQL",        color: "#336791" },
+    { label: "Next.js", color: "#fff" },
+    { label: "TypeScript", color: "#3B82F6" },
+    { label: "Tailwind", color: "#38BDF8" },
+    { label: "GSAP", color: "#88CC00" },
+    { label: "Framer Motion", color: "#BB55FF" },
+    { label: "Node.js", color: "#68A063" },
+    { label: "Prisma", color: "#5A67D8" },
+    { label: "PostgreSQL", color: "#336791" },
 ]
 
 const NOISE_BG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E")`
@@ -95,10 +87,10 @@ const BlinkCursor = () => (
 // ── Sub-component: Terminal block ─────────────────────────────────────────────
 const TerminalBlock = () => {
     const lines = [
-        { prompt: '~', cmd: 'whoami',           out: 'pranav · full-stack dev' },
-        { prompt: '~', cmd: 'uptime',            out: '3 yrs of shipping code' },
-        { prompt: '~', cmd: 'cat status.txt',    out: '✦ open to work · collabs' },
-        { prompt: '~', cmd: 'ping email',        out: 'hi@pranav.dev' },
+        { prompt: '~', cmd: 'whoami', out: 'pranav · full-stack dev' },
+        { prompt: '~', cmd: 'uptime', out: '3 yrs of shipping code' },
+        { prompt: '~', cmd: 'cat status.txt', out: '✦ open to work · collabs' },
+        { prompt: '~', cmd: 'ping email', out: 'hi@pranav.dev' },
     ]
 
     return (
@@ -172,30 +164,30 @@ const AvailBadge = () => (
 
 // ── Main Component ────────────────────────────────────────────────────────────
 const Nav = () => {
-    const pathname  = usePathname()
+    const pathname = usePathname()
     const isTouchDevice = useIsTouchDevice()
     const [isOpen, setIsOpen] = useState(false)
     const activeIndex = NAV_LINKS.findIndex(l => l.href === pathname)
-
+    const { resetState } = useCursor()
     // ── Refs ───────────────────────────────────────────────────────────────────
-    const navRef        = useRef<HTMLElement | null>(null)
-    const menuRef       = useRef<HTMLDivElement | null>(null)
-    const topLineRef    = useRef<HTMLSpanElement | null>(null)
+    const navRef = useRef<HTMLElement | null>(null)
+    const menuRef = useRef<HTMLDivElement | null>(null)
+    const topLineRef = useRef<HTMLSpanElement | null>(null)
     const bottomLineRef = useRef<HTMLSpanElement | null>(null)
-    const linksRef      = useRef<(HTMLAnchorElement | null)[]>([])
-    const linkRowsRef   = useRef<(HTMLDivElement | null)[]>([])
-    const indicatorRef  = useRef<HTMLDivElement | null>(null)
-    const containerRef  = useRef<HTMLDivElement | null>(null)
-    const contactRef    = useRef<HTMLDivElement | null>(null)
-    const timelineRef   = useRef<gsap.core.Timeline | null>(null)
-    const allLinesRef   = useRef<Element[]>([])
-    const splitsRef     = useRef<SplitText[]>([])
-    const rotationRef   = useRef(0)
+    const linksRef = useRef<(HTMLAnchorElement | null)[]>([])
+    const linkRowsRef = useRef<(HTMLDivElement | null)[]>([])
+    const indicatorRef = useRef<HTMLDivElement | null>(null)
+    const containerRef = useRef<HTMLDivElement | null>(null)
+    const contactRef = useRef<HTMLDivElement | null>(null)
+    const timelineRef = useRef<gsap.core.Timeline | null>(null)
+    const allLinesRef = useRef<Element[]>([])
+    const splitsRef = useRef<SplitText[]>([])
+    const rotationRef = useRef(0)
 
     // ── SplitText setup ────────────────────────────────────────────────────────
     useEffect(() => {
         const splits: SplitText[] = []
-        const lines: Element[]    = []
+        const lines: Element[] = []
 
         const els: Element[] = [
             ...linksRef.current.filter((el): el is HTMLAnchorElement => el !== null),
@@ -221,8 +213,8 @@ const Nav = () => {
         if (!indicator || !container) return
 
         if (index >= 0 && linkRowsRef.current[index]) {
-            const cRect  = container.getBoundingClientRect()
-            const rRect  = linkRowsRef.current[index]!.getBoundingClientRect()
+            const cRect = container.getBoundingClientRect()
+            const rRect = linkRowsRef.current[index]!.getBoundingClientRect()
             const targetY = rRect.top - cRect.top + rRect.height / 2 - indicator.offsetHeight / 2
             rotationRef.current += 180
             gsap.to(indicator, { x: 0, y: targetY, rotation: rotationRef.current, opacity: 1, duration: 0.5, ease: 'back.out(1.4)', overwrite: true })
@@ -242,24 +234,24 @@ const Nav = () => {
         if (isOpen) {
             gsap.set(indicatorRef.current, { x: '-2vw', opacity: 0 })
 
-            tl.to(navRef.current,      { width: '90vw', duration: 0.5, ease: 'power3.inOut' })
-              .to(topLineRef.current,    { rotation: 45,  y: 0, duration: 0.3, ease: 'power2.inOut' }, 0)
-              .to(bottomLineRef.current, { rotation: -45, y: 0, duration: 0.3, ease: 'power2.inOut' }, 0)
-              .to(menuRef.current,       { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.5, ease: 'power3.inOut' }, 0.3)
-              .to(allLinesRef.current,   { y: '0%', stagger: 0.03, duration: 0.5, ease: 'power3.out' }, 0.5)
-              .call(() => animateToLink(activeIndex))
+            tl.to(navRef.current, { width: '90vw', duration: 0.5, ease: 'power3.inOut' })
+                .to(topLineRef.current, { rotation: 45, y: 0, duration: 0.3, ease: 'power2.inOut' }, 0)
+                .to(bottomLineRef.current, { rotation: -45, y: 0, duration: 0.3, ease: 'power2.inOut' }, 0)
+                .to(menuRef.current, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.5, ease: 'power3.inOut' }, 0.3)
+                .to(allLinesRef.current, { y: '0%', stagger: 0.03, duration: 0.5, ease: 'power3.out' }, 0.5)
+                .call(() => animateToLink(activeIndex))
         } else {
-            tl.to(topLineRef.current,    { rotation: 0, y: '-0.3vw', duration: 0.3, ease: 'power2.inOut' }, 0)
-              .to(bottomLineRef.current,  { rotation: 0, y:  '0.3vw', duration: 0.3, ease: 'power2.inOut' }, 0)
-              .to(menuRef.current,        { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.5, ease: 'power3.inOut' }, 0)
-              .to(navRef.current,         { width: '95vw', duration: 0.5, ease: 'power3.inOut' }, 0.3)
-              .set(allLinesRef.current,   { y: '100%' }, 0.5)
+            tl.to(topLineRef.current, { rotation: 0, y: '-0.3vw', duration: 0.3, ease: 'power2.inOut' }, 0)
+                .to(bottomLineRef.current, { rotation: 0, y: '0.3vw', duration: 0.3, ease: 'power2.inOut' }, 0)
+                .to(menuRef.current, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.5, ease: 'power3.inOut' }, 0)
+                .to(navRef.current, { width: '95vw', duration: 0.5, ease: 'power3.inOut' }, 0.3)
+                .set(allLinesRef.current, { y: '100%' }, 0.5)
         }
-    
+
     }, [isOpen, activeIndex])
 
     // ── Cursor ─────────────────────────────────────────────────────────────────
-    const h      = useCursorElement({ state: 'text', text: isOpen ? 'Close' : 'Open' })
+    const h = useCursorElement({ state: 'text', text: isOpen ? 'Close' : 'Open' })
     const h_link = useCursorElement({ state: 'icon', icon: <MousePointerClickIcon className="size-10 inline text-white" /> })
     const h_build = useCursorElement({ state: 'icon', icon: <MousePointerClickIcon className="size-7 inline text-white" /> })
     const h_socials = useCursorElement({ state: 'pointer' })
@@ -290,7 +282,10 @@ const Nav = () => {
 
             {/* Centered pill toggle */}
             <motion.div
-                onClick={() => setIsOpen(v => !v)}
+                onClick={() => {
+                    setIsOpen(v => !v)
+                    resetState()
+                }}
                 onKeyDown={e => e.key === 'Enter' && setIsOpen(v => !v)}
                 role="button"
                 tabIndex={0}
@@ -313,6 +308,7 @@ const Nav = () => {
                     z-9999 cursor-pointer
                     min-h-11 min-w-11 sm:min-h-0 sm:min-w-0
                 "
+                onMouseLeave={()=>resetState()}
             >
                 {isTouchDevice
                     ? <MenuToggleContent isOpen={isOpen} h={h} />
@@ -381,7 +377,7 @@ const Nav = () => {
                                     role="menuitem"
                                     tabIndex={isOpen ? 0 : -1}
                                 >
-                                    <StaggerText text={link.label} className='h-8 lg:h-16'/>
+                                    <StaggerText text={link.label} className='h-8 lg:h-16' />
                                 </Link>
 
                                 {/* active dot */}
@@ -421,7 +417,7 @@ const Nav = () => {
                         {/* CTA + socials row */}
                         <div className="flex flex-wrap items-center gap-3 pt-1">
                             <Link
-                            {...h_build}
+                                {...h_build}
                                 href="/contact"
                                 onClick={() => setIsOpen(false)}
                                 className="
@@ -442,9 +438,9 @@ const Nav = () => {
 
                             {/* social icon links */}
                             {[
-                                { label: 'GH',  href: 'https://github.com',   title: 'GitHub'   },
-                                { label: 'LI',  href: 'https://linkedin.com', title: 'LinkedIn' },
-                                { label: 'TW',  href: 'https://twitter.com',  title: 'Twitter'  },
+                                { label: 'GH', href: 'https://github.com', title: 'GitHub' },
+                                { label: 'LI', href: 'https://linkedin.com', title: 'LinkedIn' },
+                                { label: 'TW', href: 'https://twitter.com', title: 'Twitter' },
                             ].map(s => (
                                 <a
                                     key={s.label}
@@ -466,7 +462,7 @@ const Nav = () => {
 
                             {/* location blip */}
                             <span className="ml-auto text-[10px] font-mono text-white/60 hidden sm:block">
-                                 India · UTC+5:30
+                                India · UTC+5:30
                             </span>
                         </div>
                     </div>

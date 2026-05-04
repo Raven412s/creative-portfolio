@@ -17,16 +17,8 @@ import {
 import { Github, Instagram, Linkedin } from "lucide-react";
 import { AsciiMorph } from "../ascii-morph";
 import gsap from 'gsap';
+import { NAV_LINKS } from '@/constants';
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-const NAV_LINKS = [
-    { label: "Home", href: "/", num: "00" },
-    { label: "About", href: "/about", num: "01" },
-    { label: "Works", href: "/works", num: "02" },
-    { label: "Case Studies", href: "/case-studies", num: "03" },
-    { label: "Blogs", href: "/blog", num: "04" },
-    { label: "Contact", href: "/contact", num: "05" },
-] as const
 
 function Socials() {
     const h = useCursorElement({

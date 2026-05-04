@@ -40,7 +40,7 @@ function segmentRot(prevArc: number, prevRot: number) {
 function HeatmapSVG({ calendar }: { calendar: Record<string, number> }) {
   const calendarKeys = Object.keys(calendar).map(Number);
   const maxTimestamp = calendarKeys.length > 0 ? Math.max(...calendarKeys) * 1000 : Date.now();
-  const today = new Date(maxTimestamp);
+  const today = new Date();
   const [tooltip, setTooltip] = useState<{
     x: number;
     y: number;
@@ -48,7 +48,11 @@ function HeatmapSVG({ calendar }: { calendar: Record<string, number> }) {
     date: Date;
   } | null>(null);
 
-  const startDate = new Date(today.getFullYear(), today.getMonth() - 11, 1);
+  // Current month mein kitne din beet chuke hain?
+const dayOfMonth = today.getDate(); // e.g. 4 (May 4)
+const monthsToGoBack = dayOfMonth >= 15 ? 11 : 12;
+
+const startDate = new Date(today.getFullYear(), today.getMonth() - monthsToGoBack, 1);
 
   const monthsData = [];
   let tempDate = new Date(startDate);
@@ -234,15 +238,8 @@ export function LeetCodeCard({ username = "Ashutosh_Sharan" }: { username?: stri
       .then((data) => !data.error && setStats(data))
   }, [username])
 
-  const data = stats || {
-    solved: { all: 17, easy: 15, medium: 2, hard: 0 },
-    total: { all: 3915, easy: 940, medium: 2048, hard: 927 },
-    submissionsLastYear: 48,
-    totalActiveDays: 5,
-    streak: 2,
-    calendar: {}
-  }
-
+  const data = stats 
+  if (data)
   return (
     <div className="w-full p-4 text-white bg-[#0a0a0a] rounded-2xl">
 

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -17,7 +17,7 @@ import {
     FieldGroup,
     FieldLabel,
 } from '@/components/ui/field'
-import { useCursorElement } from '../cursor/claude-cursor'
+import { useCursor, useCursorElement } from '../cursor/claude-cursor'
 
 // ── 1. Zod schema ──────────────────────────────────────────────
 const formSchema = z.object({
@@ -81,11 +81,12 @@ function FocusableField({ children, className, invalid }: FocusableFieldProps) {
 
 // ── 2. Component ────────────────────────────────────────────────
 export function ContactForm() {
+    const { resetState } = useCursor() 
+
     const h_build = useCursorElement({
         state: 'icon',
         icon: <MousePointerClickIcon className="size-7 inline text-[#0a0a0a]" />,
     })
-
     // ── 3. useForm with zodResolver ──────────────────────────────
     const form = useForm<FormValues>({
         resolver: zodResolver(formSchema),
@@ -107,6 +108,13 @@ export function ContactForm() {
         // wire up your API call here e.g. fetch('/api/contact', ...)
     }
 
+
+    useEffect(() => {
+        if (isSubmitSuccessful) {
+            resetState()
+        }
+    }, [isSubmitSuccessful, resetState])
+
     // ── 5. Success state ─────────────────────────────────────────
     if (isSubmitSuccessful) {
         return (
@@ -121,7 +129,10 @@ export function ContactForm() {
                 <Button
                     {...h_build}
                     variant="outline"
-                    onClick={() => reset()}
+                    onClick={() => {
+                        reset()
+                        resetState()
+                    }}
                     className="font-mono text-[11px] tracking-[0.14em] uppercase 
 border border-[#0a0a0a]/30 text-[#0a0a0a]/60 bg-transparent
 hover:text-lime-accent hover:border-[#0a0a0a]/50 hover:bg-[#0a0a0a]/30"
