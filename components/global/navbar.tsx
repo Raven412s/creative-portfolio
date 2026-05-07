@@ -3,9 +3,9 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Menu, MousePointerClickIcon, X } from 'lucide-react'
 import { useIsTouchDevice } from '@/hooks/use-is-touch-device'
-import { Magnetic } from '../buttons'
+
 import RavenLogo from '../svgs/raven-logo'
-import { useCursor, useCursorElement, type CursorElementHandlers } from '../cursor/claude-cursor'
+import { useCursor, useCursorElement, type CursorElementHandlers } from '../self-made/advance-cursor'
 import StaggerText from '../ui/stagger-text'
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
@@ -13,6 +13,7 @@ import { usePathname } from 'next/navigation'
 import gsap from 'gsap'
 import { SplitText } from 'gsap/SplitText'
 import { NAV_LINKS } from '@/constants'
+import { Magnetic } from '../self-made/magnetic'
 
 gsap.registerPlugin(SplitText)
 
@@ -269,7 +270,7 @@ const Nav = () => {
             >
                 {[0, 1].map(i => (
                     <div key={i} className={isTouchDevice ? '' : 'pointer-events-auto'}>
-                        <Magnetic>
+                        <Magnetic strength={0.55} ease="elastic.out(1, 0.25)" duration={0.8} >
                             <div className="flex items-center">
                                 <p className="navText">RAVEN</p>
                                 <RavenLogo />

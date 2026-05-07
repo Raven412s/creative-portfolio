@@ -1,7 +1,7 @@
 // info-section.tsx
 "use client"
 import { AsciiMorph } from '@/components/ascii-morph'
-import { useCursorElement } from '@/components/cursor/claude-cursor'
+import { useCursorElement } from '@/components/self-made/advance-cursor'
 import ClipText from '@/components/text-animations/scroll-based-reveal'
 import SplitText from '@/components/text-animations/split-text'
 import { Separator } from '@/components/ui/separator'

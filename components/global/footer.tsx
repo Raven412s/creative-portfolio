@@ -5,7 +5,7 @@ import { MousePointerClickIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { useCursorElement } from '../cursor/claude-cursor';
+import { useCursorElement } from '../self-made/advance-cursor';
 import StaggerText from '../ui/stagger-text';
 
 import {
@@ -18,6 +18,7 @@ import { Github, Instagram, Linkedin } from "lucide-react";
 import { AsciiMorph } from "../ascii-morph";
 import gsap from 'gsap';
 import { NAV_LINKS } from '@/constants';
+import GlowText from '../self-made/glow-text';
 
 
 function Socials() {
@@ -68,134 +69,7 @@ function Socials() {
     );
 }
 
-function Unleashed() {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const glowRef = useRef<HTMLDivElement>(null);
-    const textRef = useRef<SVGTextElement>(null);
-    const [textHeight, setTextHeight] = useState<number | null>(null);
 
-    useEffect(() => {
-        const measure = () => {
-            if (!textRef.current) return;
-            try {
-                const bbox = textRef.current.getBBox();
-                setTextHeight(bbox.height * 1.1);
-            } catch {
-                // getBBox fails if element not in DOM yet
-            }
-        };
-
-        measure();
-        window.addEventListener("resize", measure);
-        return () => window.removeEventListener("resize", measure);
-    }, []);
-
-    return (
-        <div
-            style={{ height: textHeight ? `${textHeight}px` : "15vw" }}
-            className="relative w-full transition-[height] duration-0"
-        >
-            <div
-                ref={containerRef}
-                onMouseMove={(e) => {
-                    if (!containerRef.current || !glowRef.current) return;
-                    const rect = containerRef.current.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    glowRef.current.style.left = `${x - 400}px`;
-                    glowRef.current.style.top = `${y - 400}px`;
-                }}
-                onMouseEnter={() => {
-                    if (glowRef.current) glowRef.current.style.opacity = "1";
-                }}
-                onMouseLeave={() => {
-                    if (glowRef.current) glowRef.current.style.opacity = "0";
-                }}
-                className="relative w-full h-full flex cursor-none overflow-hidden"
-            >
-                {/* Base SVG — mask + stroke */}
-                <svg className="absolute w-full h-full" preserveAspectRatio="xMidYMid meet">
-                    <defs>
-                        <mask id="text-mask">
-                            <rect width="100%" height="100%" fill="black" />
-                            <text
-                                ref={textRef}
-                                x="50%" y="50%"
-                                dominantBaseline="middle" textAnchor="middle"
-                                fontSize="14vw" fontWeight="900" fontFamily="inherit"
-                                letterSpacing="-0.02em" fill="white"
-                            >
-                                UNLEASHED
-                            </text>
-                        </mask>
-                    </defs>
-                    <rect width="100%" height="100%" fill="white" fillOpacity="0.04" mask="url(#text-mask)" />
-                    <text
-                        x="50%" y="50%"
-                        dominantBaseline="middle" textAnchor="middle"
-                        fontSize="14vw" fontWeight="900" fontFamily="inherit"
-                        letterSpacing="-0.02em" fill="none"
-                        stroke="rgba(255,255,255,0.55)" strokeWidth="1"
-                        className="md:stroke-[1.5]"
-                    >
-                        UNLEASHED
-                    </text>
-                </svg>
-
-                {/* Glow SVG overlay — desktop only */}
-                <svg
-                    className="absolute w-full h-full z-10 pointer-events-none hidden md:block"
-                    style={{ mixBlendMode: "screen" }}
-                >
-                    <defs>
-                        <mask id="text-mask-glow">
-                            <rect width="100%" height="100%" fill="black" />
-                            <text
-                                x="50%" y="50%"
-                                dominantBaseline="middle" textAnchor="middle"
-                                fontSize="14vw" fontWeight="900" fontFamily="inherit"
-                                letterSpacing="-0.02em" fill="white"
-                            >
-                                UNLEASHED
-                            </text>
-                        </mask>
-                    </defs>
-                    <foreignObject width="100%" height="100%" mask="url(#text-mask-glow)">
-                        <div className="w-full h-full relative overflow-hidden">
-                            <div
-                                ref={glowRef}
-                                className="pointer-events-none absolute w-200 h-200 opacity-0 transition-opacity duration-300 blur-3xl z-10 bg-[radial-gradient(circle,rgba(28,243,161,0.9)_0%,rgba(28,243,161,0.2)_40%,transparent_70%)]"
-                            />
-                        </div>
-                    </foreignObject>
-                </svg>
-
-                {/* Mobile fallback gradient */}
-                <svg className="absolute w-full h-full pointer-events-none md:hidden">
-                    <defs>
-                        <linearGradient id="grad-mobile" x1="0" y1="1" x2="0" y2="0">
-                            <stop offset="0%" stopColor="#1cf3a1" stopOpacity="0.8" />
-                            <stop offset="40%" stopColor="white" stopOpacity="0.4" />
-                            <stop offset="100%" stopColor="transparent" />
-                        </linearGradient>
-                        <mask id="text-mask-gradient">
-                            <rect width="100%" height="100%" fill="black" />
-                            <text
-                                x="50%" y="50%"
-                                dominantBaseline="middle" textAnchor="middle"
-                                fontSize="14vw" fontWeight="900" fontFamily="inherit"
-                                letterSpacing="-0.02em" fill="white"
-                            >
-                                UNLEASHED
-                            </text>
-                        </mask>
-                    </defs>
-                    <rect width="100%" height="100%" mask="url(#text-mask-gradient)" fill="url(#grad-mobile)" />
-                </svg>
-            </div>
-        </div>
-    );
-}
 
 export default function Footer() {
     const h = useCursorElement({
@@ -239,7 +113,7 @@ export default function Footer() {
 
                     {/* UNLEASHED heading */}
                     <div className="w-full">
-                        <Unleashed />
+                    <GlowText text='UNLEASHED' strokeWidth='1.5' strokeColor='rgba(255,255,255,0.3)' glowBlur='100px' />
                     </div>
 
                     {/*

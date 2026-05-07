@@ -59,7 +59,7 @@ export function AboutSection() {
           width: "50vw",
           height: "100vh",
           x: "50%",
-          y: "0vh",
+          y: "0%",
           borderRadius: "0rem",
           duration: 1.2,
           ease: "smooth",

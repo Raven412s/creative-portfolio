@@ -17,7 +17,7 @@ import {
     FieldGroup,
     FieldLabel,
 } from '@/components/ui/field'
-import { useCursor, useCursorElement } from '../cursor/claude-cursor'
+import { useCursor, useCursorElement } from '../self-made/advance-cursor'
 
 // ── 1. Zod schema ──────────────────────────────────────────────
 const formSchema = z.object({

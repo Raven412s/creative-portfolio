@@ -151,7 +151,7 @@ function AuthPanel({ tags }: { tags: string[] }) {
             <span className="text-[10px] font-mono text-neutral-400 mt-1">v1</span>
           </div>
           <div className="flex-1 flex flex-col items-center px-2 sm:px-3">
-            <div className="h-px w-full bg-gradient-to-r from-neutral-800 to-neutral-300 relative">
+            <div className="h-px w-full bg-linear-to-r from-neutral-800 to-neutral-300 relative">
               <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 border-r-2 border-t-2 border-neutral-400 rotate-45" />
             </div>
             <span className="text-[8px] sm:text-[9px] font-mono text-neutral-400 mt-1 text-center">abstracted adapters</span>
@@ -163,7 +163,7 @@ function AuthPanel({ tags }: { tags: string[] }) {
             <span className="text-[10px] font-mono text-neutral-400 mt-1">v2</span>
           </div>
           <div className="flex-1 flex flex-col items-center px-2 sm:px-3">
-            <div className="h-px w-full bg-gradient-to-r from-neutral-300 to-neutral-200" />
+            <div className="h-px w-full bg-linear-to-r from-neutral-300 to-neutral-200" />
             <span className="text-[8px] sm:text-[9px] font-mono text-neutral-300 mt-1">future-proof</span>
           </div>
           <div className="flex flex-col items-center opacity-40">
@@ -390,19 +390,19 @@ export function DisplaySection() {
     const bar     = progressBarRef.current;
     if (!section || !track) return;
 
-    // ── BG: dark (#0a0a0a) → white (#fefefe) as intro panel scrolls away ──
-    // Exactly like your reference snippet: starts at "top 50%" → "top top"
-    gsap.set(section, { backgroundColor: "#0a0a0a" });
-    gsap.to(section, {
-      backgroundColor: "#fefefe",
-      ease: "none",
-      scrollTrigger: {
-        trigger: section,
-        start: "top 50%",   // section enters viewport halfway
-        end: "top top",     // complete by the time section top = viewport top
-        scrub: true,
-      },
-    });
+    // // ── BG: dark (#0a0a0a) → white (#fefefe) as intro panel scrolls away ──
+    // // Exactly like your reference snippet: starts at "top 50%" → "top top"
+    // gsap.set(section, { backgroundColor: "#0a0a0a" });
+    // gsap.to(section, {
+    //   backgroundColor: "#fefefe",
+    //   ease: "none",
+    //   scrollTrigger: {
+    //     trigger: section,
+    //     start: "top 50%",   // section enters viewport halfway
+    //     end: "top top",     // complete by the time section top = viewport top
+    //     scrub: true,
+    //   },
+    // });
 
     if (isMobile) return; // mobile uses vertical CSS layout, no GSAP pin
 
@@ -415,7 +415,7 @@ export function DisplaySection() {
       scrollTrigger: {
         trigger: section,
         pin: true,
-        scrub: 1,
+        scrub: 0.1,
         start: "top top",
         end: () => `+=${totalWidth}`,
         anticipatePin: 1,
@@ -538,21 +538,11 @@ export function DisplaySection() {
         }
       `}</style>
 
-      {/* Progress bar — desktop only */}
-      <div
-        className="fixed top-0 left-0 w-full h-[2px] z-50 bg-neutral-100 hidden md:block"
-        style={{ pointerEvents: "none" }}
-      >
-        <div
-          ref={progressBarRef}
-          className="h-full bg-white transition-none"
-          style={{ width: "0%", willChange: "width" }}
-        />
-      </div>
+
 
       <section
         ref={sectionRef}
-        className="systems-section relative overflow-hidden"
+      className="systems-section relative overflow-hidden h-screenf"
         style={{ backgroundColor: "#0a0a0a" }}
       >
         <div
@@ -570,7 +560,7 @@ export function DisplaySection() {
               <div
                 key={p.id}
                 data-panel-type={p.type}
-                className={`panel-card flex-shrink-0 flex items-center relative border-r border-neutral-100 last:border-r-0 ${
+                className={`panel-card shrink-0 flex items-center relative border-r border-neutral-100 last:border-r-0 ${
                   isIntro ? "intro-card intro-panel-bg" : "blueprint-bg"
                 }`}
                 style={{

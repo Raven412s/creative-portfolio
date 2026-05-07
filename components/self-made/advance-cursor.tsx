@@ -20,6 +20,24 @@ import { useIsTouchDevice } from "@/hooks/use-is-touch-device";
 // Types & Interfaces
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Visual modes supported by the advanced cursor system.
+ *
+ * These states control:
+ * - cursor scale
+ * - blend mode behavior
+ * - label/icon visibility
+ * - media previews
+ * - active click compression
+ * - skew intensity
+ *
+ * @example
+ * setState("pointer")
+ * setState("text", { text: "View" })
+ * setState("icon", { icon: "↗" })
+ * setState("media", { mediaSrc: "/preview.jpg" })
+ */
+
 export type CursorState =
   | "default"
   | "pointer"
@@ -31,11 +49,30 @@ export type CursorState =
 
 type EffectiveState = CursorState | "active";
 
+/**
+ * Physics configuration for the cursor interpolation engine.
+ *
+ * The cursor follower uses:
+ * - linear interpolation (lerp)
+ * - velocity-based skewing
+ * - requestAnimationFrame updates
+ *
+ * These values control the perceived weight,
+ * elasticity, and responsiveness of the cursor.
+ *
+ * @example
+ * const config = {
+ *   speed: 0.15,
+ *   skewing: 3,
+ *   skewingText: 2,
+ * }
+ */
+
 export interface CursorConfig {
-  speed:           number;
-  skewing:         number;
-  skewingText:     number;
-  skewingDelta:    number;
+  speed: number;
+  skewing: number;
+  skewingText: number;
+  skewingDelta: number;
   skewingDeltaMax: number;
 }
 
@@ -72,19 +109,43 @@ export interface CursorElementOptions {
   backgroundColor?: string;
 }
 
+/**
+ * Shared cursor context exposed through {@link useCursor}.
+ *
+ * Allows any component in the tree to:
+ * - change cursor state
+ * - inject labels/icons/media
+ * - toggle active/pressed state
+ * - reset the cursor
+ *
+ * Managed internally by {@link CursorProvider}.
+ */
+
 export interface CursorContextValue {
-  setState:    (s: CursorState, opts?: Omit<CursorElementOptions, "state">) => void;
-  resetState:  () => void;
+  setState: (s: CursorState, opts?: Omit<CursorElementOptions, "state">) => void;
+  resetState: () => void;
   setIsActive: React.Dispatch<React.SetStateAction<boolean>>;
-  isActive:    boolean;
+  isActive: boolean;
 }
 
 export interface CursorElementHandlers {
   onMouseEnter: (e: ReactMouseEvent) => void;
   onMouseLeave: (e: ReactMouseEvent) => void;
-  onMouseDown:  (e: ReactMouseEvent) => void;
-  onMouseUp:    (e: ReactMouseEvent) => void;
+  onMouseDown: (e: ReactMouseEvent) => void;
+  onMouseUp: (e: ReactMouseEvent) => void;
 }
+
+/**
+ * RAF-driven callback invoked on every animation frame.
+ *
+ * Receives:
+ * - interpolated cursor position
+ * - velocity-derived skew rotation
+ * - visibility state
+ *
+ * Used internally by {@link MouseFollower}
+ * to apply direct DOM transforms without React re-renders.
+ */
 
 interface FrameCallback {
   (x: number, y: number, skewXDeg: number, skewYDeg: number, visible: boolean): void;
@@ -103,9 +164,21 @@ interface Vec2 { x: number; y: number }
  * - "none"  → nothing to render
  */
 type LabelPayload =
-  | { kind: "text"; content: string; textColor?: string; bgColor?: string; mediaShape?: "circle" | "window"   }
+  | { kind: "text"; content: string; textColor?: string; bgColor?: string; mediaShape?: "circle" | "window" }
   | { kind: "icon"; content: ReactNode; textColor?: string; bgColor?: string; mediaShape?: "circle" | "window" }
-  | { kind: "none"                    };
+  | { kind: "none" };
+
+/**
+ * Resolves cursor label rendering priority.
+ *
+ * Priority:
+ * 1. icon
+ * 2. text
+ * 3. none
+ *
+ * Icons intentionally override text when both are provided.
+ * This keeps rendering deterministic and avoids mixed UI states.
+ */
 
 function resolveLabelPayload(
   opts: Omit<CursorElementOptions, "state">
@@ -128,24 +201,54 @@ function hasLabel(p: LabelPayload): p is Exclude<LabelPayload, { kind: "none" }>
 // Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Default physics values tuned for a Cuberto-style cursor feel.
+ *
+ * Characteristics:
+ * - smooth interpolation
+ * - subtle elastic lag
+ * - velocity-responsive skew
+ * - heavier text/icon states
+ */
+
 const DEFAULT_CONFIG: CursorConfig = {
-  speed:           0.2,
-  skewing:         2,
-  skewingText:     2.5,
-  skewingDelta:    0.004,
+  speed: 0.2,
+  skewing: 2,
+  skewingText: 2.5,
+  skewingDelta: 0.004,
   skewingDeltaMax: 0.15,
 };
 
+/**
+ * Cursor scale multipliers per visual state.
+ *
+ * The rendered cursor circle is transformed using CSS scale().
+ *
+ * Larger scales:
+ * - feel softer
+ * - emphasize interaction zones
+ *
+ * Smaller scales:
+ * - feel sharper
+ * - improve precision
+ */
+
 const SCALE_MAP: Record<EffectiveState, number> = {
-  default:   0.5,
-  pointer:   0.3,
-  text:      1.7,
-  icon:      1.5,
-  hidden:    0,
+  default: 0.5,
+  pointer: 0.3,
+  text: 1.7,
+  icon: 1.5,
+  hidden: 0,
   exclusion: 0.5,
-  media:     0.2,
-  active:    0.15,
+  media: 0.2,
+  active: 0.15,
 };
+
+/**
+ * States that visually compress when the pointer is pressed.
+ *
+ * Used to create a tactile "active" feel during mousedown.
+ */
 
 const ACTIVE_OVERRIDE_STATES: CursorState[] = ["default", "pointer", "text", "icon"];
 
@@ -161,20 +264,38 @@ const CursorContext = createContext<CursorContextValue | null>(null);
 
 export interface CursorProviderProps {
   children: ReactNode;
-  config?:  Partial<CursorConfig>;
+  config?: Partial<CursorConfig>;
 }
+
+/**
+ * Global provider responsible for:
+ * - cursor state management
+ * - label/media payload storage
+ * - active press state
+ * - rendering the visual cursor follower
+ *
+ * This provider should wrap the entire application
+ * (or at minimum every interactive surface using the cursor).
+ *
+ * Touch devices automatically disable the custom cursor.
+ *
+ * @example
+ * <CursorProvider>
+ *   <App />
+ * </CursorProvider>
+ */
 
 export function CursorProvider({
   children,
   config = {},
 }: CursorProviderProps): JSX.Element {
   const [cursorState, setCursorState] = useState<CursorState>("exclusion");
-  const [label,       setLabel]       = useState<LabelPayload>({ kind: "none" });
-  const [mediaSrc,    setMediaSrc]    = useState<string>("");
-  const [isActive,    setIsActive]    = useState<boolean>(false);
+  const [label, setLabel] = useState<LabelPayload>({ kind: "none" });
+  const [mediaSrc, setMediaSrc] = useState<string>("");
+  const [isActive, setIsActive] = useState<boolean>(false);
   const [customTextColor, setCustomTextColor] = useState<string>("");
-  const [customBgColor,   setCustomBgColor]   = useState<string>("");
-  const [mediaShape,      setMediaShape]      = useState<"circle" | "window">("circle");
+  const [customBgColor, setCustomBgColor] = useState<string>("");
+  const [mediaShape, setMediaShape] = useState<"circle" | "window">("circle");
   const isTouchDevice = useIsTouchDevice();
 
   const cfg: CursorConfig = { ...DEFAULT_CONFIG, ...config };
@@ -222,6 +343,20 @@ export function CursorProvider({
 // ─────────────────────────────────────────────────────────────────────────────
 // useCursor
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Access the global cursor controller.
+ *
+ * Exposes imperative helpers for:
+ * - setting cursor variants
+ * - resetting state
+ * - toggling active mode
+ *
+ * Must be used inside {@link CursorProvider}.
+ *
+ * @throws Error
+ * Throws if used outside the provider tree.
+ */
 
 export function useCursor(): CursorContextValue {
   const ctx = useContext(CursorContext);
@@ -273,8 +408,8 @@ export function useCursorElement(
   return {
     onMouseEnter: () => setState(options.state ?? "pointer", options),
     onMouseLeave: () => resetState(),
-    onMouseDown:  () => setIsActive(true),
-    onMouseUp:    () => setIsActive(false),
+    onMouseDown: () => setIsActive(true),
+    onMouseUp: () => setIsActive(false),
   };
 }
 
@@ -282,21 +417,47 @@ export function useCursorElement(
 // useMouseFollower — RAF loop (lerp + velocity skew)
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Internal control surface returned by {@link useMouseFollower}.
+ *
+ * Uses mutable refs intentionally to:
+ * - avoid React re-renders
+ * - keep RAF updates extremely cheap
+ * - allow direct DOM writes every frame
+ */
+
 interface UseMouseFollowerReturn {
   onFrameRef: React.MutableRefObject<FrameCallback | null>;
-  stateRef:   React.MutableRefObject<CursorState>;
+  stateRef: React.MutableRefObject<CursorState>;
 }
 
+/**
+ * Core cursor physics engine.
+ *
+ * Responsibilities:
+ * - track raw mouse position
+ * - interpolate smoothed position
+ * - compute velocity-based skew
+ * - drive requestAnimationFrame loop
+ * - expose frame callbacks
+ *
+ * The hook avoids React state entirely for animation updates,
+ * enabling 60fps cursor movement with minimal overhead.
+ *
+ * Skew is derived from cursor velocity:
+ * faster movement = more deformation.
+ */
+
 function useMouseFollower(config: CursorConfig): UseMouseFollowerReturn {
-  const rafRef     = useRef<number | null>(null);
-  const mouseRef   = useRef<Vec2>({ x: -400, y: -400 });
-  const posRef     = useRef<Vec2>({ x: -400, y: -400 });
-  const skewRef    = useRef<Vec2>({ x: 0,    y: 0    });
-  const visRef     = useRef<boolean>(false);
-  const stateRef   = useRef<CursorState>("default");
+  const rafRef = useRef<number | null>(null);
+  const mouseRef = useRef<Vec2>({ x: -400, y: -400 });
+  const posRef = useRef<Vec2>({ x: -400, y: -400 });
+  const skewRef = useRef<Vec2>({ x: 0, y: 0 });
+  const visRef = useRef<boolean>(false);
+  const stateRef = useRef<CursorState>("default");
   const onFrameRef = useRef<FrameCallback | null>(null);
 
-  const lerp  = (a: number, b: number, t: number): number => a + (b - a) * t;
+  const lerp = (a: number, b: number, t: number): number => a + (b - a) * t;
   const clamp = (v: number, mn: number, mx: number): number => Math.min(Math.max(v, mn), mx);
 
   const getSkewing = useCallback(
@@ -331,7 +492,7 @@ function useMouseFollower(config: CursorConfig): UseMouseFollowerReturn {
   useEffect(() => {
     const loop = (): void => {
       const { x: mx, y: my } = mouseRef.current;
-      const pos  = posRef.current;
+      const pos = posRef.current;
       const skew = skewRef.current;
 
       pos.x = lerp(pos.x, mx, config.speed);
@@ -339,7 +500,7 @@ function useMouseFollower(config: CursorConfig): UseMouseFollowerReturn {
 
       const velX = mx - pos.x;
       const velY = my - pos.y;
-      const sf   = getSkewing(stateRef.current);
+      const sf = getSkewing(stateRef.current);
 
       const tSkX = clamp(velX * config.skewingDelta * sf, -config.skewingDeltaMax, config.skewingDeltaMax);
       const tSkY = clamp(velY * config.skewingDelta * sf, -config.skewingDeltaMax, config.skewingDeltaMax);
@@ -363,14 +524,31 @@ function useMouseFollower(config: CursorConfig): UseMouseFollowerReturn {
 
 interface MouseFollowerProps {
   cursorState: CursorState;
-  label:       LabelPayload;
-  mediaSrc:    string;
-  isActive:    boolean;
-  config:      CursorConfig;
+  label: LabelPayload;
+  mediaSrc: string;
+  isActive: boolean;
+  config: CursorConfig;
   customTextColor: string;
-  customBgColor:   string;
-  mediaShape:  "circle" | "window";
+  customBgColor: string;
+  mediaShape: "circle" | "window";
 }
+
+/**
+ * Low-level visual cursor renderer.
+ *
+ * Renders:
+ * - cursor circle
+ * - text labels
+ * - icons
+ * - media previews
+ * - exclusion blending
+ *
+ * Animation updates are applied directly to the DOM
+ * using mutable refs and RAF callbacks for maximum performance.
+ *
+ * React is only used for declarative state transitions —
+ * not per-frame animation updates.
+ */
 
 function MouseFollower({
   cursorState, label, mediaSrc, isActive, config, customTextColor, customBgColor, mediaShape,
@@ -384,7 +562,7 @@ function MouseFollower({
   // RAF writes directly to DOM — no React overhead on every frame
   onFrameRef.current = (x, y, skewX, skewY, visible): void => {
     if (!rootRef.current) return;
-    rootRef.current.style.opacity   = visible ? "1" : "0";
+    rootRef.current.style.opacity = visible ? "1" : "0";
     rootRef.current.style.transform =
       `translate3d(${x}px,${y}px,0) skewX(${skewX}deg) skewY(${skewY}deg)`;
   };
@@ -393,9 +571,9 @@ function MouseFollower({
   const effectiveState: EffectiveState =
     isActive && ACTIVE_OVERRIDE_STATES.includes(cursorState) ? "active" : cursorState;
 
-  const scale:        number  = SCALE_MAP[effectiveState] ?? 0.2;
-  const isExclusion:  boolean = cursorState === "exclusion";
-  const isMedia:      boolean = cursorState === "media";
+  const scale: number = SCALE_MAP[effectiveState] ?? 0.2;
+  const isExclusion: boolean = cursorState === "exclusion";
+  const isMedia: boolean = cursorState === "media";
   const labelVisible: boolean =
     (cursorState === "text" || cursorState === "icon") && hasLabel(label);
 
@@ -403,6 +581,20 @@ function MouseFollower({
   // • Lucide element (isValidElement) → size driven by the element itself; slot = 18px
   // • Short string glyph (≤2 chars)   → 16px  (glyphs look best bigger)
   // • Multi-char text label (>2 chars) → 9px uppercase
+
+  /**
+ * Dynamic typography sizing strategy:
+ *
+ * - Lucide/ReactNode icons → 18px
+ * - Short glyphs           → 16px
+ * - Multi-character text   → 9px uppercase
+ *
+ * This keeps:
+ * - symbols visually balanced
+ * - labels compact
+ * - Lucide icons crisp
+ */
+
   const labelFontSize: number = (() => {
     if (!hasLabel(label)) return 9;
     if (label.kind === "icon" && isValidElement(label.content)) return 18;
@@ -429,75 +621,109 @@ function MouseFollower({
   })();
 
   // ── Styles ─────────────────────────────────────────────────────────────
+
+  /**
+   * Root cursor container styles.
+   *
+   * Important implementation details:
+   * - fixed positioning for viewport tracking
+   * - pointer-events disabled
+   * - will-change for GPU acceleration
+   * - mix-blend-mode for exclusion mode
+   * - contain for paint/layout isolation
+   */
+
   const rootStyle: CSSProperties = {
-    position:      "fixed",
-    top:           0,
-    left:          0,
-    zIndex:        9999999,
-    opacity:       0,
-    contain:       "layout style size",
-    direction:     "ltr",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    zIndex: 9999999,
+    opacity: 0,
+    contain: "layout style size",
+    direction: "ltr",
     pointerEvents: "none",
-    userSelect:    "none",
-    willChange:    "transform",
-    mixBlendMode:  isExclusion ? "difference" : "normal",
-    color:         "#f0ece4",
-    transition:    "opacity .3s, color .4s",
+    userSelect: "none",
+    willChange: "transform",
+    mixBlendMode: isExclusion ? "difference" : "normal",
+    color: "#f0ece4",
+    transition: "opacity .3s, color .4s",
   };
 
+  /**
+ * Main cursor circle visuals.
+ *
+ * Scale transitions are state-driven.
+ * Background adapts based on:
+ * - exclusion mode
+ * - icon mode
+ * - custom overrides
+ * - active press state
+ */
+
   const circleStyle: CSSProperties = {
-    position:     "absolute",
-    width:        48,
-    height:       48,
-    top:          -24,
-    left:         -24,
+    position: "absolute",
+    width: 48,
+    height: 48,
+    top: -24,
+    left: -24,
     borderRadius: "50%",
-    background:   customBgColor ? customBgColor : (isExclusion ? "#ffffff" : cursorState === "icon" ? "#1cf3a115" : "#1cf3a105"),
-    transform:    `scale(${scale})`,
+    background: customBgColor ? customBgColor : (isExclusion ? "#ffffff" : cursorState === "icon" ? "#1cf3a115" : "#1cf3a105"),
+    transform: `scale(${scale})`,
     opacity: cursorState === "text" || cursorState === "icon" ? 0.65 : 1,
-    transition:   `transform ${isActive ? ".1s" : ".25s"} ease-in-out, opacity .1s, background .4s`,
+    transition: `transform ${isActive ? ".1s" : ".25s"} ease-in-out, opacity .1s, background .4s`,
   };
 
   // Resolve text color: custom > label-specific > default
-  const resolvedTextColor = customTextColor || 
+  const resolvedTextColor = customTextColor ||
     (label.kind !== "none" && label.textColor ? label.textColor : undefined) ||
     (isExclusion ? "#fff" : "#0e0e0e");
 
   const labelStyle: CSSProperties = {
-    position:       "absolute",
-    width:          36,
-    height:         36,
-    top:            -18,
-    left:           -18,
-    display:        "flex",
-    alignItems:     "center",
+    position: "absolute",
+    width: 36,
+    height: 36,
+    top: -18,
+    left: -18,
+    display: "flex",
+    alignItems: "center",
     justifyContent: "center",
-    textAlign:      "center",
-    fontSize:       labelFontSize,
+    textAlign: "center",
+    fontSize: labelFontSize,
     // Lucide icons use currentColor — this ensures they contrast with the circle
-    color:          resolvedTextColor,
-    fontFamily:     "'Helvetica Neue', sans-serif",
-    fontWeight:     700,
-    letterSpacing:  ".08em",
-    textTransform:  "uppercase",
-    lineHeight:     1.2,
-    opacity:        labelVisible ? 1 : 0,
-    transform:      labelVisible ? "scale(1) rotate(0deg)" : "scale(0) rotate(10deg)",
-    transition:     "opacity .4s, transform .3s",
-    pointerEvents:  "none",
-    whiteSpace:     "nowrap",
+    color: resolvedTextColor,
+    fontFamily: "'Helvetica Neue', sans-serif",
+    fontWeight: 700,
+    letterSpacing: ".08em",
+    textTransform: "uppercase",
+    lineHeight: 1.2,
+    opacity: labelVisible ? 1 : 0,
+    transform: labelVisible ? "scale(1) rotate(0deg)" : "scale(0) rotate(10deg)",
+    transition: "opacity .4s, transform .3s",
+    pointerEvents: "none",
+    whiteSpace: "nowrap",
   };
 
+  /**
+ * Media preview container.
+ *
+ * Supports:
+ * - circular previews
+ * - cinematic 16:9 windows
+ *
+ * Uses transform scaling instead of mounting/unmounting
+ * for smoother transitions and better GPU compositing.
+ */
+
   const mediaBoxStyle: CSSProperties = {
-    position:     "relative",
-    width:        "150%",
-    height:       "150%",
-    overflow:     "hidden",
+    position: "relative",
+    width: "150%",
+    height: "150%",
+    overflow: "hidden",
     borderRadius: mediaShape === "window" ? "20px" : "50%",
-    padding:      1,
-    opacity:      isMedia ? 1 : 0,
-    transform:    isMedia ? "scale(0.696) translateZ(0)" : "scale(0) translateZ(0)",
-    transition:   "transform .4s, opacity .4s, border-radius .4s",
+    padding: 1,
+    opacity: isMedia ? 1 : 0,
+    transform: isMedia ? "scale(0.696) translateZ(0)" : "scale(0) translateZ(0)",
+    transition: "transform .4s, opacity .4s, border-radius .4s",
   };
 
   return (
@@ -513,22 +739,22 @@ function MouseFollower({
 
         {/* Media preview — circle (400×400) or window (320×180 with 16:9 aspect-ratio) */}
         {mediaShape === "circle" ? (
-          <div style={{ position:"absolute", width:400, height:400, top:-200, left:-200, pointerEvents:"none" }}>
+          <div style={{ position: "absolute", width: 400, height: 400, top: -200, left: -200, pointerEvents: "none" }}>
             <div style={mediaBoxStyle}>
               {mediaSrc && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={mediaSrc} alt=""
-                  style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               )}
             </div>
           </div>
         ) : (
-          <div style={{ position:"absolute", width:320, height:180, top:-90, left:-160, pointerEvents:"none" }}>
+          <div style={{ position: "absolute", width: 320, height: 180, top: -90, left: -160, pointerEvents: "none" }}>
             <div style={mediaBoxStyle}>
               {mediaSrc && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={mediaSrc} alt=""
-                  style={{ width:"100%", height:"100%", objectFit:"cover", display:"block" }} />
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               )}
             </div>
           </div>
@@ -542,12 +768,12 @@ function MouseFollower({
 // Demo Component Prop Types
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface NavLinkProps    { children: ReactNode; href?: string }
-interface StateCardProps  { tag: string; title: string; desc: string; state: CursorState; text?: string; icon?: ReactNode }
-interface BigLinkProps    { children: ReactNode }
-interface MediaCardProps  { label: string; gradient: string; imgSrc: string }
-interface BtnProps        { children: ReactNode; state?: CursorState; text?: string; icon?: ReactNode; filled?: boolean }
-interface SLabelProps     { n: string; children: ReactNode }
+interface NavLinkProps { children: ReactNode; href?: string }
+interface StateCardProps { tag: string; title: string; desc: string; state: CursorState; text?: string; icon?: ReactNode }
+interface BigLinkProps { children: ReactNode }
+interface MediaCardProps { label: string; gradient: string; imgSrc: string }
+interface BtnProps { children: ReactNode; state?: CursorState; text?: string; icon?: ReactNode; filled?: boolean }
+interface SLabelProps { n: string; children: ReactNode }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Demo Components
@@ -558,11 +784,13 @@ export function NavLink({ children, href = "#" }: NavLinkProps): JSX.Element {
   const h = useCursorElement({ state: "pointer" });
   return (
     <a href={href} {...h}
-      onMouseEnter={(e) => { setHov(true);  h.onMouseEnter(e); }}
+      onMouseEnter={(e) => { setHov(true); h.onMouseEnter(e); }}
       onMouseLeave={(e) => { setHov(false); h.onMouseLeave(e); }}
-      style={{ fontFamily:"'Helvetica Neue',sans-serif", fontSize:11, letterSpacing:".14em",
-               textTransform:"uppercase", textDecoration:"none",
-               color:hov?"#f0ece4":"#555", transition:"color .2s" }}
+      style={{
+        fontFamily: "'Helvetica Neue',sans-serif", fontSize: 11, letterSpacing: ".14em",
+        textTransform: "uppercase", textDecoration: "none",
+        color: hov ? "#f0ece4" : "#555", transition: "color .2s"
+      }}
     >{children}</a>
   );
 }
@@ -572,14 +800,16 @@ export function StateCard({ tag, title, desc, state, text, icon }: StateCardProp
   const h = useCursorElement({ state, text, icon });
   return (
     <div {...h}
-      onMouseEnter={(e) => { setHov(true);  h.onMouseEnter(e); }}
+      onMouseEnter={(e) => { setHov(true); h.onMouseEnter(e); }}
       onMouseLeave={(e) => { setHov(false); h.onMouseLeave(e); }}
-      style={{ background:hov?"#1c1c1c":"#141414", padding:"44px 32px",
-               display:"flex", flexDirection:"column", gap:14, transition:"background .3s" }}
+      style={{
+        background: hov ? "#1c1c1c" : "#141414", padding: "44px 32px",
+        display: "flex", flexDirection: "column", gap: 14, transition: "background .3s"
+      }}
     >
-      <span style={{ fontFamily:"'Helvetica Neue',sans-serif", fontSize:9, letterSpacing:".28em", textTransform:"uppercase", color:"#444" }}>{tag}</span>
-      <h3 style={{ fontSize:24, letterSpacing:"-.02em", fontWeight:400, margin:0 }}>{title}</h3>
-      <p style={{ fontFamily:"'Helvetica Neue',sans-serif", fontSize:12, color:"#666", lineHeight:1.65, margin:0 }}>{desc}</p>
+      <span style={{ fontFamily: "'Helvetica Neue',sans-serif", fontSize: 9, letterSpacing: ".28em", textTransform: "uppercase", color: "#444" }}>{tag}</span>
+      <h3 style={{ fontSize: 24, letterSpacing: "-.02em", fontWeight: 400, margin: 0 }}>{title}</h3>
+      <p style={{ fontFamily: "'Helvetica Neue',sans-serif", fontSize: 12, color: "#666", lineHeight: 1.65, margin: 0 }}>{desc}</p>
     </div>
   );
 }
@@ -589,15 +819,17 @@ export function BigLink({ children }: BigLinkProps): JSX.Element {
   const h = useCursorElement({ state: "pointer" });
   return (
     <a href="#" {...h}
-      onMouseEnter={(e) => { setHov(true);  h.onMouseEnter(e); }}
+      onMouseEnter={(e) => { setHov(true); h.onMouseEnter(e); }}
       onMouseLeave={(e) => { setHov(false); h.onMouseLeave(e); }}
-      style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
-               fontSize:"clamp(28px,4.5vw,56px)", letterSpacing:"-.03em", lineHeight:1.05,
-               textDecoration:"none", color:hov?"#666":"#f0ece4",
-               padding:"18px 0", borderBottom:"1px solid #1a1a1a", transition:"color .3s" }}
+      style={{
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+        fontSize: "clamp(28px,4.5vw,56px)", letterSpacing: "-.03em", lineHeight: 1.05,
+        textDecoration: "none", color: hov ? "#666" : "#f0ece4",
+        padding: "18px 0", borderBottom: "1px solid #1a1a1a", transition: "color .3s"
+      }}
     >
       <span>{children}</span>
-      <span style={{ fontSize:20, opacity:hov?1:0, transform:hov?"none":"translateX(-12px)", transition:"all .3s" }}>→</span>
+      <span style={{ fontSize: 20, opacity: hov ? 1 : 0, transform: hov ? "none" : "translateX(-12px)", transition: "all .3s" }}>→</span>
     </a>
   );
 }
@@ -607,12 +839,12 @@ export function MediaCard({ label, gradient, imgSrc }: MediaCardProps): JSX.Elem
   const h = useCursorElement({ state: "media", mediaSrc: imgSrc });
   return (
     <div {...h}
-      onMouseEnter={(e) => { setHov(true);  h.onMouseEnter(e); }}
+      onMouseEnter={(e) => { setHov(true); h.onMouseEnter(e); }}
       onMouseLeave={(e) => { setHov(false); h.onMouseLeave(e); }}
-      style={{ position:"relative", height:220, overflow:"hidden", display:"flex", alignItems:"flex-end", padding:"20px 24px" }}
+      style={{ position: "relative", height: 220, overflow: "hidden", display: "flex", alignItems: "flex-end", padding: "20px 24px" }}
     >
-      <div style={{ position:"absolute", inset:0, background:gradient, transform:hov?"scale(1.06)":"scale(1)", transition:"transform .7s cubic-bezier(.23,1,.32,1)" }} />
-      <span style={{ position:"relative", zIndex:1, fontFamily:"'Helvetica Neue',sans-serif", fontSize:9, letterSpacing:".2em", textTransform:"uppercase", color:"rgba(255,255,255,.4)" }}>{label}</span>
+      <div style={{ position: "absolute", inset: 0, background: gradient, transform: hov ? "scale(1.06)" : "scale(1)", transition: "transform .7s cubic-bezier(.23,1,.32,1)" }} />
+      <span style={{ position: "relative", zIndex: 1, fontFamily: "'Helvetica Neue',sans-serif", fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "rgba(255,255,255,.4)" }}>{label}</span>
     </div>
   );
 }
@@ -621,15 +853,15 @@ export function Btn({ children, state = "pointer", text, icon, filled = false }:
   const [hov, setHov] = useState<boolean>(false);
   const h = useCursorElement({ state, text, icon });
   const style: CSSProperties = {
-    fontFamily:"'Helvetica Neue',sans-serif", fontSize:11, letterSpacing:".16em",
-    textTransform:"uppercase", padding:"13px 28px", borderRadius:100, transition:"all .3s", border:"1px solid",
+    fontFamily: "'Helvetica Neue',sans-serif", fontSize: 11, letterSpacing: ".16em",
+    textTransform: "uppercase", padding: "13px 28px", borderRadius: 100, transition: "all .3s", border: "1px solid",
     ...(filled
-      ? { background:hov?"transparent":"#f0ece4", color:hov?"#f0ece4":"#0e0e0e", borderColor:"#f0ece4" }
-      : { background:hov?"#f0ece4":"transparent", color:hov?"#0e0e0e":"#f0ece4", borderColor:hov?"#f0ece4":"#333" }),
+      ? { background: hov ? "transparent" : "#f0ece4", color: hov ? "#f0ece4" : "#0e0e0e", borderColor: "#f0ece4" }
+      : { background: hov ? "#f0ece4" : "transparent", color: hov ? "#0e0e0e" : "#f0ece4", borderColor: hov ? "#f0ece4" : "#333" }),
   };
   return (
     <button {...h} style={style}
-      onMouseEnter={(e) => { setHov(true);  h.onMouseEnter(e); }}
+      onMouseEnter={(e) => { setHov(true); h.onMouseEnter(e); }}
       onMouseLeave={(e) => { setHov(false); h.onMouseLeave(e); }}
     >{children}</button>
   );
@@ -638,7 +870,7 @@ export function Btn({ children, state = "pointer", text, icon, filled = false }:
 export function HiddenZone(): JSX.Element {
   const h = useCursorElement({ state: "hidden" });
   return (
-    <div {...h} style={{ border:"1px solid #1e1e1e", borderRadius:6, height:96, display:"flex", alignItems:"center", justifyContent:"center", marginTop:20, fontFamily:"'Helvetica Neue',sans-serif", fontSize:9, letterSpacing:".14em", textTransform:"uppercase", color:"#444" }}>
+    <div {...h} style={{ border: "1px solid #1e1e1e", borderRadius: 6, height: 96, display: "flex", alignItems: "center", justifyContent: "center", marginTop: 20, fontFamily: "'Helvetica Neue',sans-serif", fontSize: 9, letterSpacing: ".14em", textTransform: "uppercase", color: "#444" }}>
       ⬚ &nbsp; Hover here — cursor hides
     </div>
   );
@@ -647,12 +879,12 @@ export function HiddenZone(): JSX.Element {
 export function ExclusionBand(): JSX.Element {
   const h = useCursorElement({ state: "exclusion" });
   return (
-    <div {...h} style={{ display:"grid", gridTemplateColumns:"1fr 1fr" }}>
-      <div style={{ background:"#0e0e0e", padding:"60px 52px" }}>
-        <span style={{ fontSize:44, letterSpacing:"-.03em", lineHeight:1, color:"#f0ece4" }}>Dark<br />Side</span>
+    <div {...h} style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+      <div style={{ background: "#0e0e0e", padding: "60px 52px" }}>
+        <span style={{ fontSize: 44, letterSpacing: "-.03em", lineHeight: 1, color: "#f0ece4" }}>Dark<br />Side</span>
       </div>
-      <div style={{ background:"#f0ece4", padding:"60px 52px", display:"flex", justifyContent:"flex-end" }}>
-        <span style={{ fontSize:44, letterSpacing:"-.03em", lineHeight:1, color:"#0e0e0e", textAlign:"right" }}>Light<br />Side</span>
+      <div style={{ background: "#f0ece4", padding: "60px 52px", display: "flex", justifyContent: "flex-end" }}>
+        <span style={{ fontSize: 44, letterSpacing: "-.03em", lineHeight: 1, color: "#0e0e0e", textAlign: "right" }}>Light<br />Side</span>
       </div>
     </div>
   );
@@ -660,7 +892,7 @@ export function ExclusionBand(): JSX.Element {
 
 export function SectionLabel({ n, children }: SLabelProps): JSX.Element {
   return (
-    <p style={{ fontFamily:"'Helvetica Neue',sans-serif", fontSize:9, letterSpacing:".3em", textTransform:"uppercase", color:"#555", marginBottom:44 }}>
+    <p style={{ fontFamily: "'Helvetica Neue',sans-serif", fontSize: 9, letterSpacing: ".3em", textTransform: "uppercase", color: "#555", marginBottom: 44 }}>
       {n} — {children}
     </p>
   );
@@ -679,37 +911,56 @@ export function SectionLabel({ n, children }: SLabelProps): JSX.Element {
  *   <StateCard state="icon" icon={<ArrowUpRight size={14} />} ... />
  *   <Btn state="icon" icon={<MoveRight size={14} />}>Open Project</Btn>
  */
+
+/**
+ * Full showcase/demo implementation of the advanced cursor system.
+ *
+ * Demonstrates:
+ * - pointer states
+ * - text labels
+ * - icon rendering
+ * - exclusion blending
+ * - media previews
+ * - hidden cursor zones
+ * - button integrations
+ * - velocity skewing
+ *
+ * Intended as:
+ * - documentation
+ * - playground
+ * - integration reference
+ */
 export default function App(): JSX.Element {
   return (
     <CursorProvider>
-      <div style={{ minHeight:"100vh", background:"#0e0e0e", color:"#f0ece4", fontFamily:"'Times New Roman',Times,serif" }}>
-        <div style={{ maxWidth:1040, margin:"0 auto", padding:"0 48px" }}>
+      <div style={{ minHeight: "100vh", background: "#0e0e0e", color: "#f0ece4", fontFamily: "'Times New Roman',Times,serif" }}>
+        <div style={{ maxWidth: 1040, margin: "0 auto", padding: "0 48px" }}>
 
-          <header style={{ padding:"34px 0 30px", display:"flex", justifyContent:"space-between", alignItems:"center", borderBottom:"1px solid #1a1a1a" }}>
-            <div style={{ fontFamily:"'Helvetica Neue',sans-serif", fontSize:12, letterSpacing:".28em", textTransform:"uppercase" }}>Cursor Studio</div>
-            <nav style={{ display:"flex", gap:32 }}>
+          <header style={{ padding: "34px 0 30px", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #1a1a1a" }}>
+            <div style={{ fontFamily: "'Helvetica Neue',sans-serif", fontSize: 12, letterSpacing: ".28em", textTransform: "uppercase" }}>Cursor Studio</div>
+            <nav style={{ display: "flex", gap: 32 }}>
               <NavLink>Work</NavLink><NavLink>About</NavLink>
               <NavLink>Lab</NavLink><NavLink>Contact</NavLink>
             </nav>
           </header>
 
-          <section style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:72, alignItems:"end", padding:"108px 0 92px", borderBottom:"1px solid #1a1a1a" }}>
-            <h1 style={{ fontSize:"clamp(44px,6.5vw,84px)", lineHeight:.93, letterSpacing:"-.03em", fontWeight:400, margin:0 }}>
+          <section style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 72, alignItems: "end", padding: "108px 0 92px", borderBottom: "1px solid #1a1a1a" }}>
+            <h1 style={{ fontSize: "clamp(44px,6.5vw,84px)", lineHeight: .93, letterSpacing: "-.03em", fontWeight: 400, margin: 0 }}>
               Cuberto<br />
-              <em style={{ fontStyle:"italic", color:"#555" }}>Cursor</em><br />
+              <em style={{ fontStyle: "italic", color: "#555" }}>Cursor</em><br />
               Recreation
             </h1>
-            <p style={{ fontFamily:"'Helvetica Neue',sans-serif", fontSize:13, lineHeight:1.8, color:"#666", maxWidth:340, margin:0 }}>
-              Now with <strong style={{ color:"#f0ece4", fontWeight:500 }}>Lucide icon</strong> support.
-              Pass any <code style={{ fontSize:10, background:"#1a1a1a", padding:"2px 6px", borderRadius:3 }}>ReactNode</code> as the{" "}
-              <code style={{ fontSize:10, background:"#1a1a1a", padding:"2px 6px", borderRadius:3 }}>icon</code> prop —
+            <p style={{ fontFamily: "'Helvetica Neue',sans-serif", fontSize: 13, lineHeight: 1.8, color: "#666", maxWidth: 340, margin: 0 }}>
+              Now with <strong style={{ color: "#f0ece4", fontWeight: 500 }}>Lucide icon</strong> support.
+              Pass any <code style={{ fontSize: 10, background: "#1a1a1a", padding: "2px 6px", borderRadius: 3 }}>ReactNode</code> as the{" "}
+              <code style={{ fontSize: 10, background: "#1a1a1a", padding: "2px 6px", borderRadius: 3 }}>icon</code> prop —
               Lucide elements, SVGs, glyphs, emoji.
             </p>
           </section>
 
-          <section style={{ padding:"76px 0", borderBottom:"1px solid #1a1a1a" }}>
+          <section style={{ padding: "76px 0", borderBottom: "1px solid #1a1a1a" }}>
             <SectionLabel n="01">Icon Variants</SectionLabel>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:2 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 2 }}>
               {/* String glyphs */}
               <StateCard tag="String glyph" title="Arrow" state="icon" icon="↗"
                 desc='icon="↗"  — any Unicode glyph works.' />
@@ -728,7 +979,7 @@ export default function App(): JSX.Element {
             </div>
           </section>
 
-          <section style={{ padding:"76px 0", borderBottom:"1px solid #1a1a1a" }}>
+          <section style={{ padding: "76px 0", borderBottom: "1px solid #1a1a1a" }}>
             <SectionLabel n="02">Links</SectionLabel>
             <BigLink>Brand Identity</BigLink>
             <BigLink>UX / UI Design</BigLink>
@@ -736,28 +987,28 @@ export default function App(): JSX.Element {
             <BigLink>Motion & 3D</BigLink>
           </section>
 
-          <section style={{ padding:"76px 0", borderBottom:"1px solid #1a1a1a" }}>
+          <section style={{ padding: "76px 0", borderBottom: "1px solid #1a1a1a" }}>
             <SectionLabel n="03">Media Preview</SectionLabel>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:2 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 2 }}>
               <MediaCard label="Mountains" gradient="linear-gradient(135deg,#1a1a2e,#0f3460)" imgSrc="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop" />
-              <MediaCard label="Desert"    gradient="linear-gradient(135deg,#2d1b00,#8b4513)" imgSrc="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=400&fit=crop" />
-              <MediaCard label="Forest"    gradient="linear-gradient(135deg,#0a2a0a,#2d6a2d)" imgSrc="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&h=400&fit=crop" />
+              <MediaCard label="Desert" gradient="linear-gradient(135deg,#2d1b00,#8b4513)" imgSrc="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=400&fit=crop" />
+              <MediaCard label="Forest" gradient="linear-gradient(135deg,#0a2a0a,#2d6a2d)" imgSrc="https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&h=400&fit=crop" />
             </div>
           </section>
 
         </div>
 
-        <div style={{ borderTop:"1px solid #1a1a1a", borderBottom:"1px solid #1a1a1a" }}>
-          <div style={{ maxWidth:1040, margin:"0 auto", padding:"60px 48px 20px" }}>
+        <div style={{ borderTop: "1px solid #1a1a1a", borderBottom: "1px solid #1a1a1a" }}>
+          <div style={{ maxWidth: 1040, margin: "0 auto", padding: "60px 48px 20px" }}>
             <SectionLabel n="04">Exclusion</SectionLabel>
           </div>
           <ExclusionBand />
         </div>
 
-        <div style={{ maxWidth:1040, margin:"0 auto", padding:"0 48px" }}>
-          <section style={{ padding:"76px 0 100px" }}>
+        <div style={{ maxWidth: 1040, margin: "0 auto", padding: "0 48px" }}>
+          <section style={{ padding: "76px 0 100px" }}>
             <SectionLabel n="05">Buttons</SectionLabel>
-            <div style={{ display:"flex", gap:14, flexWrap:"wrap", alignItems:"center" }}>
+            <div style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "center" }}>
               <Btn>Outline</Btn>
               <Btn filled>Filled</Btn>
               <Btn state="text" text="Go">Text</Btn>
@@ -770,7 +1021,7 @@ export default function App(): JSX.Element {
           </section>
         </div>
 
-        <div style={{ position:"fixed", bottom:24, right:24, fontFamily:"'Helvetica Neue',sans-serif", fontSize:9, letterSpacing:".12em", textTransform:"uppercase", color:"#3a3a3a", pointerEvents:"none", zIndex:100 }}>
+        <div style={{ position: "fixed", bottom: 24, right: 24, fontFamily: "'Helvetica Neue',sans-serif", fontSize: 9, letterSpacing: ".12em", textTransform: "uppercase", color: "#3a3a3a", pointerEvents: "none", zIndex: 100 }}>
           Move fast — watch the skew
         </div>
       </div>

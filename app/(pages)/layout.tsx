@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next";
 import Navbar from "@/components/global/navbar";
 import SmoothScrolling from "@/components/providers/smooth-scrolling";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { CursorProvider } from "@/components/cursor/claude-cursor";
+import { CursorProvider } from "@/components/self-made/advance-cursor";
 import { geistMono, geistSans, gridular, inter, irishGrover, italiana, jacquard24, kings, kolkerBrush, playfair, poppins, rmMono, rmNeue } from "../fonts/fonts";
 import "../globals.css";
 
