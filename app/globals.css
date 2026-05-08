@@ -369,3 +369,18 @@
     transform: translateY(0px);
   }
 }
+
+
+@keyframes shimmer {
+  0% {
+    left: -30%;
+  }
+
+  20% {
+    left: 200%;
+  }
+
+  100% {
+    left: 200%;
+  }
+}

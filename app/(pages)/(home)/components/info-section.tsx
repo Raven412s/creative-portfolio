@@ -304,6 +304,7 @@ export function InfoSection() {
                 &quot;Purpose-driven builds that combine design clarity with technical excellence.&quot;
               </p>
               <ClipText
+              offset={["start end", "end 0.9"]}
                 stroke
                 strokeWidth={1}
                 direction='right'

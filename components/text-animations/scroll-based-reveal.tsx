@@ -31,6 +31,8 @@ interface ClipTextProps {
     strokeColor?: string
     as?: ElementType
     className?: string
+    started?: boolean
+    externalProgress?: MotionValue<number>
 }
 
 /* ================= COMPONENT ================= */
@@ -45,55 +47,38 @@ export default function ClipText({
     strokeWidth = 1,
     strokeColor = "currentColor",
     as: Tag = "p",
-    className = ""
-
+    className = "",
+    started = true,
+    externalProgress,
 }: ClipTextProps) {
 
     const container = useRef<HTMLDivElement | null>(null)
 
-
-    /* speed-based offset adjustment (optional) */
-
     const startOffset = 0.9
     const endOffset = 0.9 - 0.4 / speed
 
-    const computedOffset: OffsetType =
-        offset ??
-        [
-            `start ${startOffset}`,
-            `center ${endOffset}`
-        ]
-
-
-    /* scroll progress */
+    const computedOffset: OffsetType = offset ?? [
+        `start ${startOffset}`,
+        `center ${endOffset}`
+    ]
 
     const { scrollYProgress } = useScroll({
         target: container,
         offset: computedOffset
     })
 
+    const internalProgress = useTransform(scrollYProgress, [0, 1], [100, 0])
 
-    /* reveal progress */
+    // ✅ external mile toh woh use karo, warna internal
+    const baseProgress = externalProgress ?? internalProgress
 
-    const progress: MotionValue<number> = useTransform(
-        scrollYProgress,
-        [0, 1],
-        [100, 0]
+    const clampedProgress = useTransform(baseProgress, (v) =>
+        started ? v : 100
     )
 
-
-    /* clip direction */
-
-    const clipLeft =
-        useMotionTemplate`inset(0 0 0 ${progress}%)`
-
-    const clipRight =
-        useMotionTemplate`inset(0 ${progress}% 0 0)`
-
-    const clip =
-        direction === "left"
-            ? clipLeft
-            : clipRight
+    const clipLeft  = useMotionTemplate`inset(0 0 0 ${clampedProgress}%)`
+    const clipRight = useMotionTemplate`inset(0 ${clampedProgress}% 0 0)`
+    const clip = direction === "left" ? clipLeft : clipRight
 
 
     const MotionTag = motion(Tag)

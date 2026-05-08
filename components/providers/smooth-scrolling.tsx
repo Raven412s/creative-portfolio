@@ -3,18 +3,7 @@
 import ReactLenis, { useLenis } from "lenis/react"
 import { useEffect } from "react"
 
-function LenisLogger() {
-  const lenis = useLenis(() => {})
-  
-  useEffect(() => {
-    if (lenis) {
-      console.log("Lenis Options:", lenis.options)
-      console.log("Lenis Instance:", lenis)
-    }
-  }, [lenis])
 
-  return null
-}
 
 export default function SmoothScrolling({ children }: { children: React.ReactNode }) {
   return (
@@ -31,7 +20,6 @@ export default function SmoothScrolling({ children }: { children: React.ReactNod
         syncTouch: true,
       }}
     >
-      <LenisLogger />  {/* ← yeh saare available options log karega */}
       {children}
     </ReactLenis>
   )

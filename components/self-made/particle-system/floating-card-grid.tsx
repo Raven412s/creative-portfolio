@@ -83,7 +83,7 @@ function GlowOverlay({
     <div
       aria-hidden="true"
       className={cn(
-        "absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500 z-[19]",
+        "absolute inset-0 rounded-2xl pointer-events-none transition-opacity duration-500 z-19",
         visible ? "opacity-100" : "opacity-0"
       )}
       style={{
@@ -260,7 +260,7 @@ export function FloatingCardGrid({
   return (
     <section
       className={cn(
-        "relative w-full h-screen overflow-hidden flex items-center justify-center",
+        "relative w-full min-h-screen overflow-hidden flex items-center justify-center",
         "bg-[#0a0a0a]",
         className
       )}

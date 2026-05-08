@@ -1,9 +1,12 @@
 "use client";
+
+import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import React, { useEffect, useRef } from "react";
+import { CustomEase } from "gsap/CustomEase";
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, CustomEase);
+CustomEase.create("smooth", "0.76,0,0.24,1");
 
 /* ─────────────────────────────────────────
    Panel data
@@ -19,7 +22,7 @@ const panels = [
 ];
 
 /* ─────────────────────────────────────────
-   Helper: PanelLabel
+   Sub-components
 ───────────────────────────────────────── */
 function PanelLabel({ index, label }: { index: string; label: string }) {
   return (
@@ -31,9 +34,6 @@ function PanelLabel({ index, label }: { index: string; label: string }) {
   );
 }
 
-/* ─────────────────────────────────────────
-   Helper: TagRow
-───────────────────────────────────────── */
 function TagRow({ tags, highlight }: { tags: string[]; highlight?: number }) {
   return (
     <div className="flex gap-2 mt-5 flex-wrap">
@@ -53,9 +53,6 @@ function TagRow({ tags, highlight }: { tags: string[]; highlight?: number }) {
   );
 }
 
-/* ─────────────────────────────────────────
-   Panel 1 — Intro  (DARK, full-width)
-───────────────────────────────────────── */
 function IntroPanel() {
   return (
     <div className="panel-inner flex flex-col justify-center h-full w-full px-8 sm:px-16 lg:px-24 max-w-5xl">
@@ -77,8 +74,7 @@ function IntroPanel() {
         <em className="text-white not-italic font-semibold">repeatable</em>.
       </p>
       <div className="mt-10 sm:mt-14 flex items-center gap-3 text-neutral-500 text-sm font-mono">
-        <span className="hidden sm:inline">scroll to explore</span>
-        <span className="sm:hidden">scroll to explore</span>
+        <span>scroll to explore</span>
         <svg width="40" height="8" viewBox="0 0 40 8" fill="none" className="arrow-pulse">
           <path d="M0 4h36M33 1l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
@@ -87,24 +83,15 @@ function IntroPanel() {
   );
 }
 
-/* ─────────────────────────────────────────
-   Panel 2 — Blog
-───────────────────────────────────────── */
 function BlogPanel({ tags }: { tags: string[] }) {
   return (
-    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full">
+    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full max-w-5xl">
       <PanelLabel index="02" label="Blog Infrastructure" />
-      <h3 className="panel-title">
-        Rich Text,
-        <br />
-        Owned End-to-End
-      </h3>
+      <h3 className="panel-title">Rich Text,<br />Owned End-to-End</h3>
       <div className="mt-5 rounded-xl border border-neutral-200 overflow-hidden shadow-sm bg-white">
         <div className="flex items-center gap-1 px-3 py-2 border-b border-neutral-100 bg-neutral-50 flex-wrap">
           {["B", "I", "U", "H1", "H2", "¶", "⌘"].map((t) => (
-            <button key={t} className="w-7 h-7 rounded text-xs font-mono text-neutral-500 hover:bg-neutral-200 hover:text-neutral-800 transition-colors">
-              {t}
-            </button>
+            <button key={t} className="w-7 h-7 rounded text-xs font-mono text-neutral-500 hover:bg-neutral-200 hover:text-neutral-800 transition-colors">{t}</button>
           ))}
           <div className="w-px h-4 bg-neutral-200 mx-1" />
           <button className="px-2 h-7 rounded text-xs font-mono text-neutral-500 hover:bg-neutral-200 transition-colors">Link</button>
@@ -130,18 +117,11 @@ function BlogPanel({ tags }: { tags: string[] }) {
   );
 }
 
-/* ─────────────────────────────────────────
-   Panel 3 — Auth
-───────────────────────────────────────── */
 function AuthPanel({ tags }: { tags: string[] }) {
   return (
-    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full">
+    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full max-w-5xl">
       <PanelLabel index="03" label="Auth System Evolution" />
-      <h3 className="panel-title">
-        Migrated Without
-        <br />
-        Breaking a Thing
-      </h3>
+      <h3 className="panel-title">Migrated Without<br />Breaking a Thing</h3>
       <div className="mt-5 relative">
         <div className="flex items-center">
           <div className="flex flex-col items-center">
@@ -185,31 +165,24 @@ function AuthPanel({ tags }: { tags: string[] }) {
   );
 }
 
-/* ─────────────────────────────────────────
-   Panel 4 — Starter Kit
-───────────────────────────────────────── */
 function StarterPanel({ tags }: { tags: string[] }) {
   const lines = [
-    { indent: 0, text: "my-app/", type: "dir" },
-    { indent: 1, text: "app/", type: "dir" },
-    { indent: 2, text: "layout.tsx", type: "file" },
-    { indent: 2, text: "page.tsx", type: "file" },
-    { indent: 1, text: "components/", type: "dir" },
-    { indent: 2, text: "ui/", type: "dir" },
-    { indent: 1, text: "lib/", type: "dir" },
-    { indent: 2, text: "db.ts", type: "file" },
-    { indent: 2, text: "auth.ts", type: "file" },
-    { indent: 1, text: ".env.example", type: "file" },
+    { indent: 0, text: "my-app/",        type: "dir"  },
+    { indent: 1, text: "app/",           type: "dir"  },
+    { indent: 2, text: "layout.tsx",     type: "file" },
+    { indent: 2, text: "page.tsx",       type: "file" },
+    { indent: 1, text: "components/",    type: "dir"  },
+    { indent: 2, text: "ui/",            type: "dir"  },
+    { indent: 1, text: "lib/",           type: "dir"  },
+    { indent: 2, text: "db.ts",          type: "file" },
+    { indent: 2, text: "auth.ts",        type: "file" },
+    { indent: 1, text: ".env.example",   type: "file" },
     { indent: 1, text: "next.config.ts", type: "file" },
   ];
   return (
-    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full">
+    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full max-w-5xl">
       <PanelLabel index="04" label="Next.js Starter Kit" />
-      <h3 className="panel-title">
-        From Zero to
-        <br />
-        Ship-Ready
-      </h3>
+      <h3 className="panel-title">From Zero to<br />Ship-Ready</h3>
       <div className="mt-5 bg-neutral-900 rounded-xl overflow-hidden shadow-lg border border-neutral-800">
         <div className="flex items-center gap-2 px-4 py-2.5 border-b border-neutral-800">
           <span className="w-3 h-3 rounded-full bg-red-500 opacity-80" />
@@ -240,19 +213,12 @@ function StarterPanel({ tags }: { tags: string[] }) {
   );
 }
 
-/* ─────────────────────────────────────────
-   Panel 5 — Locale Manager
-───────────────────────────────────────── */
 function LocalePanel({ tags }: { tags: string[] }) {
   const langs = ["EN", "FR", "AR", "DE", "HI"];
   return (
-    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full">
+    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full max-w-5xl">
       <PanelLabel index="05" label="Locale Manager" />
-      <h3 className="panel-title">
-        Client Controls
-        <br />
-        Their Words
-      </h3>
+      <h3 className="panel-title">Client Controls<br />Their Words</h3>
       <div className="mt-5 bg-white rounded-xl border border-neutral-200 shadow-sm overflow-hidden">
         <div className="flex items-center gap-2 px-4 py-2.5 border-b border-neutral-100 bg-neutral-50">
           <div className="w-2 h-2 rounded-full bg-green-400" />
@@ -261,9 +227,7 @@ function LocalePanel({ tags }: { tags: string[] }) {
         <div className="p-3 sm:p-4">
           <div className="flex gap-2 mb-4 flex-wrap">
             {langs.map((l, i) => (
-              <button key={l} className={`px-3 py-1 rounded-full text-xs font-mono transition-all ${i === 0 ? "bg-neutral-900 text-white shadow" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"}`}>
-                {l}
-              </button>
+              <button key={l} className={`px-3 py-1 rounded-full text-xs font-mono transition-all ${i === 0 ? "bg-neutral-900 text-white shadow" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"}`}>{l}</button>
             ))}
             <button className="px-3 py-1 rounded-full text-xs font-mono bg-neutral-100 text-neutral-400 border border-dashed border-neutral-300">+ Add</button>
           </div>
@@ -289,26 +253,19 @@ function LocalePanel({ tags }: { tags: string[] }) {
   );
 }
 
-/* ─────────────────────────────────────────
-   Panel 6 — Component Library
-───────────────────────────────────────── */
 function CompLibPanel({ tags }: { tags: string[] }) {
   const components = [
-    { name: "Button",   done: true },
-    { name: "Input",    done: true },
-    { name: "Modal",    done: true },
+    { name: "Button",   done: true  },
+    { name: "Input",    done: true  },
+    { name: "Modal",    done: true  },
     { name: "DataGrid", done: false },
     { name: "Chart",    done: false },
     { name: "Calendar", done: false },
   ];
   return (
-    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full">
+    <div className="panel-inner flex flex-col justify-center h-full px-6 sm:px-12 lg:px-16 w-full max-w-5xl">
       <PanelLabel index="06" label="Component Library" />
-      <h3 className="panel-title">
-        Built, Learned,
-        <br />
-        Dropped
-      </h3>
+      <h3 className="panel-title">Built, Learned,<br />Dropped</h3>
       <div className="mt-5 grid grid-cols-3 gap-2">
         {components.map((c) => (
           <div key={c.name} className={`p-2 sm:p-3 rounded-lg border transition-all ${c.done ? "border-neutral-800 bg-white" : "border-dashed border-neutral-300 bg-neutral-50 opacity-60"}`}>
@@ -335,9 +292,6 @@ function CompLibPanel({ tags }: { tags: string[] }) {
   );
 }
 
-/* ─────────────────────────────────────────
-   Panel 7 — Closing
-───────────────────────────────────────── */
 function ClosingPanel() {
   return (
     <div className="panel-inner flex flex-col justify-center items-start h-full px-8 sm:px-16 lg:px-20 w-full max-w-3xl">
@@ -349,7 +303,7 @@ function ClosingPanel() {
         &ldquo;Most of these tools were never meant to be showcased.{" "}
         <em>They were built to solve real problems.</em>&rdquo;
       </blockquote>
-      <p className="mt-6 sm:mt-8 text-neutral-500 text-base max-w-md leading-relaxed">
+      <p className="mt-6 sm:mt-8 text-neutral-500 text-base leading-relaxed">
         The best infrastructure is the kind nobody notices — until it&apos;s missing.
       </p>
       <div className="mt-10 sm:mt-12 h-px w-24 bg-neutral-800" />
@@ -358,9 +312,6 @@ function ClosingPanel() {
   );
 }
 
-/* ─────────────────────────────────────────
-   Panel renderer
-───────────────────────────────────────── */
 function renderPanel(p: (typeof panels)[0]) {
   switch (p.type) {
     case "intro":   return <IntroPanel />;
@@ -375,19 +326,18 @@ function renderPanel(p: (typeof panels)[0]) {
 }
 
 /* ─────────────────────────────────────────
-   Main component
+   Main Section
 ───────────────────────────────────────── */
-export function DisplaySection() {
-  const sectionRef     = useRef<HTMLElement>(null);
-  const trackRef       = useRef<HTMLDivElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
+export function SystemsSection() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef     = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+   useEffect(() => {
     const isMobile = window.innerWidth < 768;
 
-    const section = sectionRef.current;
+    const section = containerRef.current;
     const track   = trackRef.current;
-    const bar     = progressBarRef.current;
+    
     if (!section || !track) return;
 
     // ── BG: dark (#0a0a0a) → white (#fefefe) as intro panel scrolls away ──
@@ -418,11 +368,8 @@ export function DisplaySection() {
         scrub: 0.1,
         start: "top top",
         end: () => `+=${totalWidth}`,
-        anticipatePin: 1,
-        onUpdate: (self) => {
-          if (bar) bar.style.width = `${self.progress * 100}%`;
+        anticipatePin: 0,
         },
-      },
     });
 
     // ── Panel hover lifts (desktop) ──────────────────────────────────────
@@ -444,12 +391,29 @@ export function DisplaySection() {
       });
     };
   }, []);
-
-  const PANEL_W    = 820;
-  const otherCount = panels.length - 1;
-
   return (
-    <>
+   <section ref={containerRef}>
+      {/* ✅ section wrapper hata do — sirf track directly */}
+      <div
+        ref={trackRef}
+        className="horizontal-track flex h-screen"
+        style={{ width: `${panels.length * 100}vw` }}
+      >
+        {panels.map((p, i) => (
+          <div
+            key={p.id}
+            className={`panel-card relative shrink-0 h-screen border-r border-neutral-100 overflow-hidden
+              ${p.type === "intro" ? "intro-card intro-panel-bg w-screen" : "blueprint-bg max-w-4xl w-full"}
+            `}
+          >
+            {renderPanel(p)}
+            <span className={`slide-number ${p.type === "intro" ? "slide-number-dark" : "slide-number-light"}`}>
+              {String(i + 1).padStart(2, "0")}
+            </span>
+          </div>
+        ))}
+      </div>
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
@@ -461,8 +425,6 @@ export function DisplaySection() {
           letter-spacing: -0.02em;
           margin-top: 0.4rem;
         }
-
-        /* White panels share this blueprint grid bg */
         .blueprint-bg {
           background-color: #fefefe;
           background-image:
@@ -470,25 +432,14 @@ export function DisplaySection() {
             linear-gradient(90deg, rgba(0,0,0,0.038) 1px, transparent 1px);
           background-size: 36px 36px;
         }
-
-        /* Dark intro panel — pure dark, slight noise */
-        .intro-panel-bg {
-          background-color: #0a0a0a;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-        }
-
-        /* Panel hover */
-        .panel-card { will-change: transform; transition: box-shadow 0.25s ease; }
+        .intro-panel-bg { background-color: #0a0a0a; }
+        .panel-card { transition: box-shadow 0.25s ease; }
         .panel-card:hover { box-shadow: 0 20px 60px -10px rgba(0,0,0,0.1); }
-
-        /* Arrow animation */
         .arrow-pulse { animation: arrowPulse 2s ease-in-out infinite; }
         @keyframes arrowPulse {
-          0%, 100% { transform: translateX(0); opacity: 0.5; }
-          50%       { transform: translateX(7px); opacity: 1; }
+          0%, 100% { transform: translateX(0);   opacity: 0.5; }
+          50%       { transform: translateX(7px); opacity: 1;   }
         }
-
-        /* ── Slide number watermark ── */
         .slide-number {
           font-family: 'Bebas Neue', 'Arial Black', sans-serif;
           font-size: 7rem;
@@ -501,13 +452,9 @@ export function DisplaySection() {
           user-select: none;
           letter-spacing: -0.02em;
         }
-        /* On dark intro: barely visible white */
         .slide-number-dark  { color: rgba(255,255,255,0.08); }
-        /* On white panels: slightly more visible than before, 
-           enough to read, not enough to compete with content */
         .slide-number-light { color: rgba(0,0,0,0.09); }
 
-        /* ── MOBILE: vertical stacked layout ── */
         @media (max-width: 767px) {
           .horizontal-track {
             flex-direction: column !important;
@@ -519,10 +466,9 @@ export function DisplaySection() {
             min-height: auto !important;
             border-right: none !important;
             border-bottom: 1px solid #f0f0f0;
+            height: auto !important;
           }
-          .intro-card {
-            min-height: 100svh !important;
-          }
+          .intro-card { min-height: 100svh !important; }
           .panel-card:not(.intro-card) {
             padding-top: 3.5rem;
             padding-bottom: 4rem;
@@ -532,53 +478,9 @@ export function DisplaySection() {
             bottom: 0.75rem !important;
             right: 0.75rem !important;
           }
-          .systems-section {
-            height: auto !important;
-          }
+          .systems-section { height: auto !important; }
         }
       `}</style>
-
-
-
-      <section
-        ref={sectionRef}
-      className="systems-section relative overflow-hidden h-screen"
-        style={{ backgroundColor: "#0a0a0a" }}
-      >
-        <div
-          ref={trackRef}
-          className="horizontal-track flex items-stretch"
-          style={{
-            width: `calc(100vw + ${otherCount * PANEL_W}px)`,
-            minHeight: "100vh",
-            willChange: "transform",
-          }}
-        >
-          {panels.map((p, i) => {
-            const isIntro = p.type === "intro";
-            return (
-              <div
-                key={p.id}
-                data-panel-type={p.type}
-                className={`panel-card shrink-0 flex items-center relative border-r border-neutral-100 last:border-r-0 ${
-                  isIntro ? "intro-card intro-panel-bg" : "blueprint-bg"
-                }`}
-                style={{
-                  width: isIntro ? "100vw" : `${PANEL_W}px`,
-                  minHeight: "100vh",
-                }}
-              >
-                {/* Slide number watermark */}
-                <span className={`slide-number ${isIntro ? "slide-number-dark" : "slide-number-light"}`}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-
-                {renderPanel(p)}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-    </>
+    </section>
   );
 }

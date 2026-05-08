@@ -1,12 +1,12 @@
 "use client";
-
+import { useMotionValue } from "framer-motion"
 import ClipText from "@/components/text-animations/scroll-based-reveal";
 import SplitText from "@/components/text-animations/split-text";
 import gsap from "gsap";
 import { CustomEase } from "gsap/CustomEase";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 gsap.registerPlugin(ScrollTrigger, CustomEase);
 CustomEase.create("smooth", "0.76,0,0.24,1");
@@ -17,6 +17,8 @@ export function AboutSection() {
   const introRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
+  const [aboutStarted, setAboutStarted] = useState(false);
+  const aboutClipProgress = useMotionValue(100);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -39,7 +41,7 @@ export function AboutSection() {
             end: "+=200%",
             scrub: 1,
             pin: pinRef.current,
-            anticipatePin: 1,
+            anticipatePin: 0,
           },
         });
 
@@ -58,8 +60,8 @@ export function AboutSection() {
         tl.to(imageRef.current, {
           width: "50vw",
           height: "100vh",
-          x: "50%",
-          y: "0%",
+          x: "0%",
+          y: "-50%",
           borderRadius: "0rem",
           duration: 1.2,
           ease: "smooth",
@@ -69,6 +71,18 @@ export function AboutSection() {
           duration: 1,
           ease: "smooth",
         }, 1.5);
+        tl.to(
+          { value: 100 },
+          {
+            value: 0,
+            duration: 1.2,
+            ease: "smooth",
+            onUpdate: function () {
+              aboutClipProgress.set(this.targets()[0].value);
+            },
+          },
+          2.4
+        );
         tl.to(pinRef.current, {
           backgroundColor: "#0a0a0a",
           "--grid-color": "rgba(255,255,255,0.06)",
@@ -99,7 +113,7 @@ export function AboutSection() {
             end: "+=180%",
             scrub: 1,
             pin: pinRef.current,
-            anticipatePin: 1,
+            anticipatePin: 0,
           },
         });
 
@@ -129,6 +143,18 @@ export function AboutSection() {
           duration: 0.8,
           ease: "smooth",
         }, 1.4);
+        tl.to(
+          { value: 100 },
+          {
+            value: 0,
+            duration: 1,
+            ease: "smooth",
+            onUpdate: function () {
+              aboutClipProgress.set(this.targets()[0].value);
+            },
+          },
+          2.2
+        );
         tl.to(pinRef.current, {
           backgroundColor: "#0a0a0a",
           "--grid-color": "rgba(255,255,255,0.06)",
@@ -144,14 +170,11 @@ export function AboutSection() {
 
       /* ================= MOBILE (< 768px) ================= */
       mm.add("(max-width: 767px)", () => {
-
         gsap.set(imageRef.current, {
           scale: 0.5,
           clipPath: "inset(100% 0% 0% 0%)",
           borderRadius: "1.5rem",
-
         });
-
         gsap.set(aboutRef.current, { y: "100vh", color: "#030303" });
         gsap.set(introRef.current, { opacity: 1, y: 0 });
 
@@ -162,10 +185,9 @@ export function AboutSection() {
             end: "+=150%",
             scrub: 0.8,
             pin: pinRef.current,
-            anticipatePin: 1,
+            anticipatePin: 0,
           },
         });
-
 
         tl.to(imageRef.current, {
           clipPath: "inset(0% 0% 0% 0%)",
@@ -173,15 +195,12 @@ export function AboutSection() {
           duration: 0.6,
           ease: "smooth",
         }, 0.1);
-
         tl.to(introRef.current, {
           opacity: 0,
           y: -30,
           duration: 0.5,
           ease: "smooth",
         }, 0.1);
-
-
         tl.to(imageRef.current, {
           width: "100vw",
           height: "45vh",
@@ -192,22 +211,29 @@ export function AboutSection() {
           duration: 0.8,
           ease: "smooth",
         }, 0.8);
-
-
         tl.to(aboutRef.current, {
           y: "45vh",
           duration: 0.7,
           ease: "smooth",
         }, 1.2);
-
-
+        tl.to(
+          { value: 100 },
+          {
+            value: 0,
+            duration: 0.8,
+            ease: "smooth",
+            onUpdate: function () {
+              aboutClipProgress.set(this.targets()[0].value);
+            },
+          },
+          1.9
+        );
         tl.to(pinRef.current, {
           backgroundColor: "#0a0a0a",
           "--grid-color": "rgba(255,255,255,0.06)",
           duration: 0.6,
           ease: "smooth",
         }, 1.6);
-
         tl.to(aboutRef.current, {
           color: "#f4f4f5",
           duration: 0.6,
@@ -221,7 +247,7 @@ export function AboutSection() {
 
   return (
     <section
-    id="about"
+      id="about"
       ref={containerRef}
       className="relative h-[240vh]  lg:h-[300vh]"
     >
@@ -268,6 +294,8 @@ export function AboutSection() {
           className="absolute inset-0 flex items-start pt-[12vh] sm:pt-[10vh] md:pt-[9vh] lg:pt-[8vh] px-5 sm:px-8 md:px-[8%] lg:px-[10%]"
         >
           <ClipText
+            externalProgress={aboutClipProgress}
+            offset={["start end", "start 0.4"]}
             stroke
             strokeWidth={0.5}
             className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-7xl uppercase font-medium font-rmNeue max-w-6xl ml-0 sm:ml-0 md:-ml-20"
