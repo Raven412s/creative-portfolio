@@ -11,10 +11,10 @@ export function HomeView() {
         <main className="w-full relative pointer-events-auto">
             <HeroSection />
             <AboutSection />
-            <InfoSection />
             <DocumentsSection />
             <DisplaySection />
             <TestimonialsSection />
+            <InfoSection />
             <ContactSection />
         </main>
     )

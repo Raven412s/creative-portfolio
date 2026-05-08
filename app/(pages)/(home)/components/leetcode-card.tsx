@@ -247,7 +247,7 @@ export function LeetCodeCard({ username = "Ashutosh_Sharan" }: { username?: stri
       <div className="lg:hidden space-y-3">
 
         {/* Donut + Pills side by side */}
-        <div className="flex items-center gap-28  bg-[#1a1a1a60] border-2 border-white/5 rounded-2xl p-4">
+        <div className="flex items-center gap-28  intro-panel-bg border-2 border-white/5 rounded-2xl p-4">
           <DonutChart solved={data.solved} total={data.total} />
           <div className="flex flex-col gap-2 flex-1">
             <DiffPill label="Easy" solved={data.solved.easy} total={data.total.easy} color="#00b8a3" />
@@ -257,7 +257,7 @@ export function LeetCodeCard({ username = "Ashutosh_Sharan" }: { username?: stri
         </div>
 
         {/* Badges row */}
-        <div className="flex gap-3 bg-[#1a1a1a60] border-2 border-white/5 rounded-2xl p-4 relative overflow-hidden">
+        <div className="flex gap-3 intro-panel-bg border-2 border-white/5 rounded-2xl p-4 relative overflow-hidden">
           <div className="flex-1">
             <span className="text-[11px] text-white/40 block mb-1">Badges</span>
             <span className="text-3xl font-bold">0</span>
@@ -274,7 +274,7 @@ export function LeetCodeCard({ username = "Ashutosh_Sharan" }: { username?: stri
         </div>
 
         {/* Heatmap */}
-        <div className="bg-[#1a1a1a60] border-2 border-white/5 rounded-2xl p-4">
+        <div className="intro-panel-bg border-2 border-white/5 rounded-2xl p-4">
           {/* Stats row */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-2">
             <div className="flex items-center gap-1">
@@ -304,7 +304,7 @@ export function LeetCodeCard({ username = "Ashutosh_Sharan" }: { username?: stri
       {/* ─── DESKTOP LAYOUT (hidden below lg) — ORIGINAL, UNTOUCHED ────── */}
       <div className="hidden lg:block">
         <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-7 flex items-center justify-between gap-6 bg-[#1a1a1a60] border-2 border-white/5 rounded-2xl p-6">
+          <div className="col-span-7 flex items-center justify-between gap-6 intro-panel-bg border-2 border-white/5 rounded-2xl p-6">
             <DonutChart solved={data.solved} total={data.total} />
             <div className="flex flex-col gap-2">
               <DiffPill label="Easy" solved={data.solved.easy} total={data.total.easy} color="#00b8a3" />
@@ -313,7 +313,7 @@ export function LeetCodeCard({ username = "Ashutosh_Sharan" }: { username?: stri
             </div>
           </div>
 
-          <div className="col-span-5 flex flex-col justify-between bg-[#1a1a1a60] border-2 border-white/5 rounded-2xl p-6 relative overflow-hidden">
+          <div className="col-span-5 flex flex-col justify-between intro-panel-bg border-2 border-white/5 rounded-2xl p-6 relative overflow-hidden">
             <div>
               <span className="text-[11px] text-white/40 block mb-1">Badges</span>
               <span className="text-3xl font-bold">0</span>
@@ -330,7 +330,7 @@ export function LeetCodeCard({ username = "Ashutosh_Sharan" }: { username?: stri
           </div>
         </div>
 
-        <div className="mt-4 bg-[#1a1a1a60] border-2 border-white/5 rounded-2xl p-6">
+        <div className="mt-4 intro-panel-bg border-2 border-white/5 rounded-2xl p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
               <span className="text-xl font-bold">{data.submissionsLastYear}</span>

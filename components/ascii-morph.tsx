@@ -20,7 +20,7 @@ interface AsciiMorphProps {
     morph?: boolean
 }
 
-export function AsciiMorph({ files, pause = 5000, className= '', fontColor= "text-white/50", morph = true }: AsciiMorphProps) {
+export function AsciiMorph({ files, pause = 5000, className = '', fontColor = "text-white/50", morph = true }: AsciiMorphProps) {
     const [lines, setLines] = useState<string[]>([])
     const [rotateX, setRotateX] = useState(0)
     const [rotateY, setRotateY] = useState(0)
@@ -70,7 +70,7 @@ export function AsciiMorph({ files, pause = 5000, className= '', fontColor= "tex
 
             framesRef.current = normalized
             setLines(normalized[0])
-            
+
             // Skip animation if morph is false
             if (!morph) {
                 return
@@ -128,7 +128,7 @@ export function AsciiMorph({ files, pause = 5000, className= '', fontColor= "tex
     }, [files, pause, morph])
 
     return (
-        <div 
+        <div
             ref={containerRef}
             className={cn("w-full flex items-center justify-center overflow-visible  perspective-[1000px] text-center", className)}
             style={{ transformStyle: 'preserve-3d' }}
@@ -141,14 +141,14 @@ export function AsciiMorph({ files, pause = 5000, className= '', fontColor= "tex
                 className='p-20'
             >
                 <pre
-                    className={cn("font-mono  select-none", fontColor)}
+                    className={cn("font-mono select-none mx-auto", fontColor)}
                     style={{
                         fontSize: 'clamp(4px, 0.7vw, 10px)',
                         letterSpacing: '0.03em',
                         lineHeight: '1.2',
-                        overflow: 'hidden',
                         whiteSpace: 'pre',
-                        maxWidth: '100%',
+                        display: 'inline-block',
+                        textAlign: 'center',
                     }}
                 >
                     {lines.join('\n')}
