@@ -8,7 +8,7 @@ import TestimonialsSection from "../components/testimonials-section";
 
 export function HomeView() {
     return (
-        <main className="w-full relative pointer-events-auto">
+        <main className="w-full relative pointer-events-auto block">
             <HeroSection />
             <AboutSection />
             <DocumentsSection />

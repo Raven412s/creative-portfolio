@@ -8,7 +8,7 @@ import { geistMono, geistSans, gridular, inter, irishGrover, italiana, jacquard2
 import "../globals.css";
 
 import Footer from "@/components/global/footer";
-import { ShaderLoader } from "@/components/shaderLoader";
+
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -102,16 +102,14 @@ export default function RootLayout({
       >
         <SmoothScrolling>
           <ThemeProvider attribute="class" enableSystem={false}>
-            <ShaderLoader>
-              <CursorProvider>
-                <Navbar />
-                {/* ✅ Yahan z-index aur padding-bottom daalo */}
-                <main className="relative z-10 pointer-events-none pb-[60vh] lg:pb-[150vh]" >
-                  {children}
-                </main>
-                <Footer />
-              </CursorProvider>
-            </ShaderLoader>
+              
+            <CursorProvider>
+              <Navbar />
+              <main className="relative z-10 pointer-events-none pb-[60vh] lg:pb-[150vh]">
+                {children}
+              </main>
+              <Footer />
+            </CursorProvider>
           </ThemeProvider>
         </SmoothScrolling>
       </body>

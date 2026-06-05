@@ -1,4 +1,4 @@
-import type { Vector2, Color } from 'three';
+import * as THREE from 'three';
 
 export interface ShaderLoaderProps {
   /**
@@ -16,9 +16,23 @@ export interface ShaderLoaderProps {
 
   /**
    * Custom text for the click-to-reveal prompt.
+   * Only shown when interaction is true.
    * @default 'CLICK TO REVEAL'
    */
   clickPrompt?: string;
+
+  /**
+   * If true (default), user must click/tap to trigger the reveal.
+   * If false, the reveal animation starts automatically on mount.
+   * @default true
+   */
+  interaction?: boolean;
+
+  /**
+   * Delay in ms before auto-reveal starts (only used when interaction=false).
+   * @default 500
+   */
+  autoRevealDelay?: number;
 
   /**
    * Callback fired when the reveal animation completes.
@@ -27,7 +41,6 @@ export interface ShaderLoaderProps {
 
   /**
    * Callback fired during animation with a normalized progress value [0, 1].
-   * Useful for syncing other animations or UI state.
    */
   onProgress?: (progress: number) => void;
 
@@ -36,11 +49,8 @@ export interface ShaderLoaderProps {
    */
   onCancel?: () => void;
 
-  /**
-   * Content rendered beneath the loader overlay.
-   * Becomes interactive once the loader animation completes.
-   */
-  children?: React.ReactNode;
+  // NOTE: No children prop — ShaderLoader is a standalone overlay only.
+  // It never wraps children. Mount it anywhere in the tree as a sibling.
 }
 
 export interface ShaderLoaderRef {
@@ -48,7 +58,7 @@ export interface ShaderLoaderRef {
   reveal: () => void;
 
   /**
-   * Cancel the reveal animation and hide the loader immediately.
+   * Cancel the reveal animation and unmount the loader immediately.
    * Fires onCancel callback.
    */
   cancel: () => void;
@@ -59,8 +69,10 @@ export interface ShaderLoaderRef {
 
 /** Three.js uniform block for the ShaderLoader material. */
 export interface ShaderUniforms {
-  uTransition: { value: number };
-  uResolution: { value: Vector2 };
-  uTime: { value: number };
-  uBorderColor: { value: Color };
+  [key: string]: THREE.IUniform;
+
+  uTransition: THREE.IUniform<number>;
+  uResolution: THREE.IUniform<THREE.Vector2>;
+  uTime: THREE.IUniform<number>;
+  uBorderColor: THREE.IUniform<THREE.Color>;
 }
