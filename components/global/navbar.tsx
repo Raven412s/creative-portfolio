@@ -88,10 +88,10 @@ const BlinkCursor = () => (
 // ── Sub-component: Terminal block ─────────────────────────────────────────────
 const TerminalBlock = () => {
     const lines = [
-        { prompt: '~', cmd: 'whoami', out: 'pranav · full-stack dev' },
-        { prompt: '~', cmd: 'uptime', out: '3 yrs of shipping code' },
-        { prompt: '~', cmd: 'cat status.txt', out: '✦ open to work · collabs' },
-        { prompt: '~', cmd: 'ping email', out: 'hi@pranav.dev' },
+        { prompt: '~', cmd: 'whoami', out: 'ashutosh sharan · creative developer' },
+        { prompt: '~', cmd: 'uptime', out: 'building systems & immersive web experiences' },
+        { prompt: '~', cmd: 'cat status.txt', out: '✦ available for hire' },
+        { prompt: '~', cmd: 'ping email', out: 'being.ashutosh16.20@gmail.com' },
     ]
 
     return (

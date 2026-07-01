@@ -28,7 +28,7 @@ export function ContactSection() {
                             {[
                                 { label: 'Email', value: 'being.ashutosh16.20@gmail.com' },
                                 { label: 'Based in', value: 'UTC+5:30 · India' },
-                                { label: 'Availability', value: 'Open to projects', highlight: true },
+                                { label: 'Availability', value: 'Available for hire', highlight: true },
                             ].map(({ label, value, highlight }) => (
                                 <div key={label}>
                                     <p className="font-mono text-[9px] tracking-[0.16em] uppercase text-[#0a0a0a]/50 mb-1">

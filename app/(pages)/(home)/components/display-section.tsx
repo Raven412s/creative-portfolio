@@ -58,7 +58,7 @@ function TagRow({ tags, highlight }: { tags: string[]; highlight?: number }) {
 ───────────────────────────────────────── */
 export function IntroPanel() {
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex w-full items-center justify-between">
       <div className="panel-inner flex flex-col justify-center h-full w-full px-8 sm:px-16 lg:px-24 max-w-5xl">
         <span className="text-[10px] sm:text-[11px] tracking-[0.35em] uppercase text-neutral-500 mb-6 sm:mb-8 font-mono">
           Architecture · Infrastructure · Systems
@@ -87,15 +87,16 @@ export function IntroPanel() {
       </div>
 
       {/* ASCII Morph */}
-      <div className="hidden lg:flex relative group max-h-screen flex-2 items-center justify-center ">
-        <div className="relative transform transition-transform duration-300  flex items-center justify-center">
+      <div className="hidden lg:flex relative group max-h-screen flex-[1.5] basis-[48vw] min-w-0 max-w-[58vw] items-center justify-center overflow-hidden pr-8">
+        <div className="relative transform transition-transform duration-300 flex w-full items-center justify-center">
           <AsciiMorph
             files={[
               '/ascii/ashutosh.txt',
               // "/ascii/raven.txt"
             ]}
             pause={5000}
-            morph={false}            
+            morph={false}
+            className="max-w-full"
           />
         </div>
       </div>
@@ -582,6 +583,7 @@ export function DisplaySection() {
 
 
       <section
+        id="systems"
         ref={sectionRef}
         className="systems-section relative overflow-hidden h-screen"
         style={{ backgroundColor: "#0a0a0a" }}

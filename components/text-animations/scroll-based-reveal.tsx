@@ -81,7 +81,7 @@ export default function ClipText({
     const clip = direction === "left" ? clipLeft : clipRight
 
 
-    const MotionTag = motion(Tag)
+    const MotionTag = motion.create(Tag)
 
 
     /* stroke style */

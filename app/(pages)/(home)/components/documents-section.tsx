@@ -85,7 +85,7 @@ const CARDS: FloatingCardItem[] = [
                 icon={<FileText />}
                 title="Resume"
                 description="My professional journey"
-                href="#"
+                href="/docs/Ashutosh_Sharan_Resume.pdf"
                 color="bg-rose-50 border-rose-200 hover:bg-rose-100"
                 iconColor="text-rose-500"
             />
