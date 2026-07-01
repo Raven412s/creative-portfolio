@@ -3,7 +3,7 @@ import { ContactForm } from '@/components/forms/contact-form'
 
 export function ContactSection() {
     return (
-        <section className="min-h-screen bg-[#fefefe] flex items-center px-[clamp(1.5rem,6vw,6rem)] py-[clamp(4rem,8vw,8rem)]">
+        <section className="min-h-screen bg-[#fefefe] flex items-center px-[clamp(1.5rem,6vw,6rem)] py-[clamp(4rem,8vw,8rem)] pointer-events-auto">
             <div className="w-full max-w-275 mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-[clamp(3rem,6vw,7rem)] items-start">
 
